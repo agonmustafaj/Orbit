@@ -1,0 +1,246 @@
+{
+  "site": {
+    "name": "ORBIT",
+    "tagline": "Explore beyond the digital.",
+    "descriptor": "DIGITAL EXPERIENCE / 001",
+    "email": "hello@orbit.studio",
+    "availability": "Open for collaboration",
+    "social": [
+      { "label": "GitHub", "url": "https://github.com/agonmustafaj/Orbit" },
+      { "label": "X", "url": "https://x.com/" },
+      { "label": "LinkedIn", "url": "https://www.linkedin.com/" }
+    ]
+  },
+  "projects": [
+    {
+      "id": "digital-experience",
+      "number": "001",
+      "title": "Digital Experience",
+      "category": "Interactive Web",
+      "intro": "A modern interactive website demonstrating sophisticated frontend development.",
+      "description": "An immersive product narrative built around motion, typography, and spatial storytelling. The experience balances cinematic visuals with precise information architecture so visitors can explore without losing orientation.",
+      "objectives": [
+        "Establish a memorable first impression within three seconds",
+        "Guide attention through scroll-linked storytelling",
+        "Keep performance high while preserving visual richness"
+      ],
+      "designDecisions": [
+        "Editorial layouts replace dense card grids",
+        "Motion is reserved for hierarchy and continuity",
+        "Dark surfaces emphasize luminous accent geometry"
+      ],
+      "implementation": [
+        "Modular section system with progressive enhancement",
+        "GPU-conscious animation budgets and lazy media loading",
+        "Accessible keyboard paths for all primary interactions"
+      ],
+      "technologies": ["HTML", "CSS", "JavaScript", "GSAP", "Three.js"],
+      "preview": "/static/images/projects/project-001.svg",
+      "gallery": [
+        "/static/images/projects/project-001.svg",
+        "/static/images/projects/project-001-b.svg"
+      ],
+      "liveUrl": "#work",
+      "githubUrl": "https://github.com/agonmustafaj/Orbit",
+      "caseStudy": "This demonstration project explores how cinematic motion and restrained UI chrome can coexist. The focus is clarity under spectacle — every animation has a job."
+    },
+    {
+      "id": "creative-technology",
+      "number": "002",
+      "title": "Creative Technology",
+      "category": "Experimental Visuals",
+      "intro": "An experimental visual experience featuring interactive geometry and animation.",
+      "description": "A playground of generative forms, shader-inspired lighting, and reactive geometry. Built to prove that experimental aesthetics can still communicate a coherent brand world.",
+      "objectives": [
+        "Make interaction feel physical and responsive",
+        "Showcase creative coding without sacrificing usability",
+        "Provide expandable experiment surfaces"
+      ],
+      "designDecisions": [
+        "Geometry-first composition with sparse copy",
+        "Violet emissive accents as the sole chromatic signal",
+        "Controls remain secondary to the visual field"
+      ],
+      "implementation": [
+        "Canvas and WebGL experiments loaded on demand",
+        "Shared design tokens across experiment shells",
+        "Fallback states when WebGL is unavailable"
+      ],
+      "technologies": ["Three.js", "WebGL", "GSAP", "JavaScript"],
+      "preview": "/static/images/projects/project-002.svg",
+      "gallery": [
+        "/static/images/projects/project-002.svg",
+        "/static/images/projects/project-002-b.svg"
+      ],
+      "liveUrl": "#playground",
+      "githubUrl": "https://github.com/agonmustafaj/Orbit",
+      "caseStudy": "Creative Technology treats the browser as a laboratory. Visitors can poke, drag, and reset systems that demonstrate ORBIT’s experimental language."
+    },
+    {
+      "id": "digital-platform",
+      "number": "003",
+      "title": "Digital Platform",
+      "category": "Product Interface",
+      "intro": "A modern interface demonstrating responsive design, information architecture, and user experience.",
+      "description": "A structured product surface focused on clarity, hierarchy, and adaptive layouts. It shows how ORBIT translates immersive thinking into practical interface systems.",
+      "objectives": [
+        "Communicate complex information with calm hierarchy",
+        "Remain fully usable across phone, tablet, and desktop",
+        "Connect frontend craft with a typed Python API"
+      ],
+      "designDecisions": [
+        "Asymmetric editorial blocks instead of rigid card walls",
+        "Monospace metadata for technical credibility",
+        "Consistent violet focus states for accessibility"
+      ],
+      "implementation": [
+        "FastAPI endpoints serving centralized JSON content",
+        "Progressive disclosure for case-study depth",
+        "Responsive type and spacing scales"
+      ],
+      "technologies": ["Python", "FastAPI", "HTML", "CSS", "JavaScript"],
+      "preview": "/static/images/projects/project-003.svg",
+      "gallery": [
+        "/static/images/projects/project-003.svg",
+        "/static/images/projects/project-003-b.svg"
+      ],
+      "liveUrl": "#capabilities",
+      "githubUrl": "https://github.com/agonmustafaj/Orbit",
+      "caseStudy": "Digital Platform demonstrates that ORBIT is not only visual theater — it is also a maintainable content and API architecture ready for iteration."
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "html",
+      "name": "HTML",
+      "category": "FRONTEND DEVELOPMENT",
+      "description": "Semantic structure for accessibility, SEO, and resilient content.",
+      "usedIn": ["Index content", "Project case studies", "Contact form"]
+    },
+    {
+      "id": "css",
+      "name": "CSS",
+      "category": "FRONTEND DEVELOPMENT",
+      "description": "Design tokens, responsive layout, and cinematic atmosphere.",
+      "usedIn": ["Design system", "Orbital UI chrome", "Mobile navigation"]
+    },
+    {
+      "id": "javascript",
+      "name": "JavaScript",
+      "category": "FRONTEND DEVELOPMENT",
+      "description": "Interaction orchestration, API clients, and progressive enhancement.",
+      "usedIn": ["Navigation", "Terminal", "Playground"]
+    },
+    {
+      "id": "react",
+      "name": "React",
+      "category": "FRONTEND DEVELOPMENT",
+      "description": "Component architecture for product interfaces when complexity warrants it.",
+      "usedIn": ["Referenced capability for product work"]
+    },
+    {
+      "id": "nextjs",
+      "name": "Next.js",
+      "category": "FRONTEND DEVELOPMENT",
+      "description": "App routing and hybrid rendering patterns for larger product surfaces.",
+      "usedIn": ["Referenced capability for platform work"]
+    },
+    {
+      "id": "python",
+      "name": "Python",
+      "category": "BACKEND DEVELOPMENT",
+      "description": "Readable server logic, configuration, and validation.",
+      "usedIn": ["FastAPI app", "Contact processing", "Content loading"]
+    },
+    {
+      "id": "fastapi",
+      "name": "FastAPI",
+      "category": "BACKEND DEVELOPMENT",
+      "description": "Typed API routes with automatic validation via Pydantic.",
+      "usedIn": ["/api/projects", "/api/contact", "/api/health"]
+    },
+    {
+      "id": "rest",
+      "name": "REST APIs",
+      "category": "BACKEND DEVELOPMENT",
+      "description": "Predictable resource endpoints for content and contact flows.",
+      "usedIn": ["Project data API", "Health checks"]
+    },
+    {
+      "id": "threejs",
+      "name": "Three.js",
+      "category": "CREATIVE DEVELOPMENT",
+      "description": "Real-time WebGL scenes for the ORBIT globe and 3D explorer.",
+      "usedIn": ["Hero globe", "3D Object Explorer"]
+    },
+    {
+      "id": "webgl",
+      "name": "WebGL",
+      "category": "CREATIVE DEVELOPMENT",
+      "description": "GPU-accelerated rendering with graceful fallbacks.",
+      "usedIn": ["Globe shaders/materials", "Particle fields"]
+    },
+    {
+      "id": "gsap",
+      "name": "GSAP",
+      "category": "CREATIVE DEVELOPMENT",
+      "description": "Timeline-driven motion for section reveals and transitions.",
+      "usedIn": ["Loader", "Section entrances", "Typography reveals"]
+    },
+    {
+      "id": "animations",
+      "name": "Interactive animations",
+      "category": "CREATIVE DEVELOPMENT",
+      "description": "Purposeful motion that supports hierarchy instead of noise.",
+      "usedIn": ["Hover states", "Orbital navigation", "Scroll cues"]
+    },
+    {
+      "id": "responsive",
+      "name": "Responsive design",
+      "category": "DESIGN & EXPERIENCE",
+      "description": "Deliberate mobile, tablet, and desktop compositions.",
+      "usedIn": ["All sections"]
+    },
+    {
+      "id": "uiux",
+      "name": "UI/UX",
+      "category": "DESIGN & EXPERIENCE",
+      "description": "Clear pathways through an immersive visual system.",
+      "usedIn": ["Navigation", "Project details", "Contact"]
+    },
+    {
+      "id": "interaction",
+      "name": "Interaction design",
+      "category": "DESIGN & EXPERIENCE",
+      "description": "Mouse, touch, and keyboard behaviors that feel intentional.",
+      "usedIn": ["Globe", "Playground", "Terminal"]
+    },
+    {
+      "id": "performance",
+      "name": "Performance optimization",
+      "category": "DESIGN & EXPERIENCE",
+      "description": "Lazy experiments, capped particles, and efficient render loops.",
+      "usedIn": ["Loader", "Playground lazy load", "WebGL DPR caps"]
+    }
+  ],
+  "experiments": [
+    {
+      "id": "particle-field",
+      "number": "001",
+      "title": "Particle Field",
+      "description": "A responsive particle environment with proximity links and fluid motion."
+    },
+    {
+      "id": "gravity-system",
+      "number": "002",
+      "title": "Gravity System",
+      "description": "Interactive floating geometry with adjustable gravity and reset controls."
+    },
+    {
+      "id": "object-explorer",
+      "number": "003",
+      "title": "3D Object Explorer",
+      "description": "Rotate, zoom, and switch visualization modes on a geometric object."
+    }
+  ]
+}
