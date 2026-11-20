@@ -1,38 +1,60 @@
 /**
  * ORBIT hero globe — wireframe sphere, orbital ring, central eye, particles.
+ * Three.js is loaded as an ES module (r170+ no longer ships UMD three.min.js).
  */
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js";
+
 const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+function readSize(canvas) {
+  const parent = canvas?.parentElement || document.body;
+  const rect = parent.getBoundingClientRect?.() || { width: 0, height: 0 };
+  const w = Math.max(
+    1,
+    Math.floor(parent.clientWidth || rect.width || window.innerWidth || 1)
+  );
+  const h = Math.max(
+    1,
+    Math.floor(parent.clientHeight || rect.height || window.innerHeight || 1)
+  );
+  return { w, h, parent };
+}
+
 export function createGlobe(canvas, { onReady, onFallback } = {}) {
-  if (!window.THREE) {
+  if (!canvas) {
+    onFallback?.("Globe canvas missing");
+    return null;
+  }
+
+  if (!THREE?.WebGLRenderer) {
     onFallback?.("Three.js failed to load");
     return null;
   }
 
-  // Probe WebGL before constructing the full renderer
-  const probe = document.createElement("canvas");
-  const gl =
-    probe.getContext("webgl2", { failIfMajorPerformanceCaveat: false }) ||
-    probe.getContext("webgl", { failIfMajorPerformanceCaveat: false });
-  if (!gl) {
-    onFallback?.("WebGL context unavailable");
-    return null;
-  }
-
+  // Do NOT probe WebGL on a throwaway canvas first — iOS Safari has a very
+  // low simultaneous WebGL context limit; a probe can steal the only slot.
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({
       canvas,
-      antialias: true,
+      antialias: window.devicePixelRatio < 2,
       alpha: true,
-      powerPreference: "high-performance",
+      // "high-performance" can false-fail on iOS Safari; default is safer.
+      powerPreference: "default",
       failIfMajorPerformanceCaveat: false,
+      premultipliedAlpha: true,
     });
-    // Force a clear to confirm the context is usable
     renderer.setClearColor(0x000000, 0);
     renderer.clear();
   } catch (err) {
-    onFallback?.(String(err));
+    onFallback?.(String(err?.message || err));
+    return null;
+  }
+
+  const gl = renderer.getContext?.();
+  if (!gl) {
+    renderer.dispose();
+    onFallback?.("WebGL context unavailable");
     return null;
   }
 
@@ -46,7 +68,6 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
   const globeGroup = new THREE.Group();
   root.add(globeGroup);
 
-  // Wireframe globe layers
   const violet = 0xa855f7;
   const soft = 0xc4b5fd;
 
@@ -73,7 +94,6 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
   );
   globeGroup.add(inner);
 
-  // Latitude / longitude accents
   const latMat = new THREE.LineBasicMaterial({
     color: soft,
     transparent: true,
@@ -89,7 +109,6 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
     globeGroup.add(new THREE.LineLoop(geo, latMat));
   }
 
-  // Atmosphere shell
   const atmosphere = new THREE.Mesh(
     new THREE.SphereGeometry(1.55, 32, 32),
     new THREE.MeshBasicMaterial({
@@ -101,7 +120,6 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
   );
   globeGroup.add(atmosphere);
 
-  // Central eye
   const eye = new THREE.Group();
   const lid = new THREE.Mesh(
     new THREE.OctahedronGeometry(0.28, 0),
@@ -137,7 +155,6 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
   eye.add(lid, pupil, halo);
   globeGroup.add(eye);
 
-  // Orbital ring
   const ringGroup = new THREE.Group();
   ringGroup.rotation.x = THREE.MathUtils.degToRad(72);
   ringGroup.rotation.z = THREE.MathUtils.degToRad(-18);
@@ -164,7 +181,6 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
   ringGroup.add(ring, ringGlow, trail);
   root.add(ringGroup);
 
-  // Particles
   const count = window.innerWidth < 720 ? 80 : 160;
   const positions = new Float32Array(count * 3);
   for (let i = 0; i < count; i += 1) {
@@ -189,7 +205,6 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
   );
   root.add(particles);
 
-  // Lights
   scene.add(new THREE.AmbientLight(0x4c1d95, 0.7));
   const key = new THREE.PointLight(violet, 40, 12);
   key.position.set(2.5, 1.5, 3);
@@ -201,6 +216,7 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
   const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
   const onPointer = (e) => {
     const rect = canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
     pointer.tx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
     pointer.ty = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
   };
@@ -214,17 +230,20 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
   window.addEventListener("scroll", onScroll, { passive: true });
 
   const setSize = () => {
-    const parent = canvas.parentElement || document.body;
-    const w = parent.clientWidth || window.innerWidth;
-    const h = parent.clientHeight || window.innerHeight;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+    const { w, h } = readSize(canvas);
+    // Cap DPR harder on phones — iOS Safari is memory-sensitive.
+    const dprCap = window.innerWidth < 720 ? 1.5 : 1.75;
+    const dpr = Math.min(window.devicePixelRatio || 1, dprCap);
     renderer.setPixelRatio(dpr);
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
   };
   setSize();
+  // Layout can settle after first paint on iOS (100vh / safe-area).
+  requestAnimationFrame(setSize);
   window.addEventListener("resize", setSize);
+  window.addEventListener("orientationchange", setSize);
 
   let raf = 0;
   let running = true;
@@ -257,7 +276,14 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
 
   return {
     setSectionInfluence(sectionId) {
-      const map = { index: 0, work: 0.2, playground: 0.35, about: 0.45, capabilities: 0.55, contact: 0.7 };
+      const map = {
+        index: 0,
+        work: 0.2,
+        playground: 0.35,
+        about: 0.45,
+        capabilities: 0.55,
+        contact: 0.7,
+      };
       scrollT = map[sectionId] ?? scrollT;
     },
     dispose() {
@@ -266,6 +292,7 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
       window.removeEventListener("pointermove", onPointer);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", setSize);
+      window.removeEventListener("orientationchange", setSize);
       renderer.dispose();
       sphereGeo.dispose();
     },
