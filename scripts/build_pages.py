@@ -30,7 +30,7 @@ def main() -> None:
         projects=portfolio.get("projects", []),
         capabilities=portfolio.get("capabilities", []),
         experiments=portfolio.get("experiments", []),
-        site_url="https://orbit-83j.pages.dev",
+        site_url="https://orbit.pages.dev",
         contact_email=site.get("email", "hello@orbit.studio"),
         error_notice=None,
     )

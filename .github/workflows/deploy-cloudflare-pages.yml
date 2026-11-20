@@ -1,5 +1,5 @@
-# Deploy ORBIT to Cloudflare Pages project orbit-83j
-# https://orbit-83j.pages.dev/
+# Deploy ORBIT to Cloudflare Pages project orbit
+# https://orbit.pages.dev/
 #
 # GitHub Actions secrets:
 #   CLOUDFLARE_API_TOKEN
@@ -36,4 +36,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=orbit-83j
+          command: pages deploy dist --project-name=orbit

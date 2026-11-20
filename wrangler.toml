@@ -1,10 +1,11 @@
-# Cloudflare Pages — production: https://orbit-83j.pages.dev/
-name = "orbit-83j"
+# Cloudflare Pages — Git-connected project name is `orbit`
+# Production: https://orbit.pages.dev/
+# (Agon also referenced https://orbit-83j.pages.dev/ — that slug is a separate/empty project;
+#  this repo’s Git integration deploys to `orbit`.)
+name = "orbit"
 compatibility_date = "2025-11-01"
 pages_build_output_dir = "./dist"
 
-# Contact secrets (optional email delivery) — set in dashboard or via:
-#   npx wrangler pages secret put RESEND_API_KEY --project-name=orbit-83j
-#   npx wrangler pages secret put CONTACT_TO --project-name=orbit-83j
-#   npx wrangler pages secret put CONTACT_FROM --project-name=orbit-83j
-# Do NOT put secrets in [vars] here (locks the dashboard).
+# Optional contact delivery secrets (dashboard / wrangler pages secret put):
+#   RESEND_API_KEY, CONTACT_TO, CONTACT_FROM
+# Do NOT put secrets in [vars] (locks the dashboard).

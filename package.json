@@ -1,0 +1,9 @@
+{
+  "name": "orbit",
+  "private": true,
+  "description": "ORBIT immersive digital experience — Cloudflare Pages build",
+  "scripts": {
+    "build": "python3 -m pip install jinja2 && python3 scripts/build_pages.py",
+    "pages:build": "npm run build"
+  }
+}

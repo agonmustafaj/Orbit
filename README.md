@@ -2,7 +2,8 @@
 
 Immersive digital experience — interactive Three.js globe, experimental playground, FastAPI (local) / Cloudflare Pages (production).
 
-**Production:** https://orbit-83j.pages.dev/
+**Production:** https://orbit.pages.dev/  
+(Git-connected Cloudflare Pages project: `orbit`. Empty sibling slug `orbit-83j.pages.dev` is not the active Git target.)
 
 ORBIT is a standalone project. It is not the personal portfolio and must stay independent.
 
@@ -38,20 +39,21 @@ Contact email delivery is optional. Without `RESEND_API_KEY` + `CONTACT_FROM` + 
 
 ## Cloudflare Pages deploy
 
-Project name: **`orbit-83j`** → https://orbit-83j.pages.dev/
+Git-connected project: **`orbit`** → https://orbit.pages.dev/
+
+Dashboard / build settings (if editing manually):
+
+| Setting | Value |
+| --- | --- |
+| Framework preset | None |
+| Build command | `npm run build` |
+| Build output directory | `dist` |
 
 ```bash
-source .venv/bin/activate
-python scripts/build_pages.py
-npx wrangler pages deploy dist --project-name=orbit-83j
+npm run build
+# or: python scripts/build_pages.py
+npx wrangler pages deploy dist --project-name=orbit
 ```
-
-Required credentials:
-
-- `CLOUDFLARE_ACCOUNT_ID`
-- `CLOUDFLARE_API_TOKEN` (Cloudflare Pages Edit + Account Settings Read)
-
-Or connect the GitHub repo in the Cloudflare dashboard (Framework: None / build: `python scripts/build_pages.py` / output: `dist`).
 
 Optional Pages secrets for email: `RESEND_API_KEY`, `CONTACT_TO`, `CONTACT_FROM`.
 
