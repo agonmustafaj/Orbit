@@ -1,0 +1,8 @@
+{
+  "name": "orbit",
+  "private": true,
+  "description": "ORBIT — Cloudflare Pages Git build (no GitHub Actions secrets)",
+  "scripts": {
+    "build": "python3 -m pip install jinja2 && python3 scripts/build_pages.py"
+  }
+}

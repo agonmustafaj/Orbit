@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ORBIT — Explore Beyond the Digital</title>
+  <meta name="description" content="ORBIT is an immersive digital experience — a futuristic creative universe with interactive 3D, experimental playgrounds, and cinematic web design." />
+  <meta name="author" content="{{ site.get('creator', contact_name) }}" />
+  <link rel="canonical" href="{{ site_url }}/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="ORBIT — Explore Beyond the Digital" />
+  <meta property="og:description" content="A standalone immersive digital experience built with FastAPI, Three.js, and GSAP." />
+  <meta property="og:url" content="{{ site_url }}/" />
+  <meta property="og:image" content="{{ site_url }}/static/images/og-orbit.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:creator" content="{{ site.get('creator', contact_name) }}" />
+  <meta name="theme-color" content="#050308" />
+  <link rel="icon" href="/static/images/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/main.css" />
+  <link rel="stylesheet" href="/static/css/components.css" />
+  <link rel="stylesheet" href="/static/css/responsive.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "ORBIT",
+    "url": "{{ site_url }}/",
+    "description": "Immersive digital experience and creative development project.",
+    "author": {
+      "@type": "Person",
+      "name": "{{ site.get('creator', contact_name) }}",
+      "email": "{{ contact_email }}"
+    },
+    "creator": {
+      "@type": "Person",
+      "name": "{{ site.get('creator', contact_name) }}",
+      "email": "{{ contact_email }}"
+    },
+    "potentialAction": {
+      "@type": "CommunicateAction",
+      "target": "mailto:{{ contact_email }}"
+    }
+  }
+  </script>
+</head>
+<body data-section="index">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div id="loader" class="loader" role="status" aria-live="polite" aria-busy="true">
+    <div class="loader__mark">
+      <span class="loader__orbit" aria-hidden="true"></span>
+      <span class="loader__word">ORBIT</span>
+    </div>
+    <div class="loader__bar" aria-hidden="true"><span class="loader__progress"></span></div>
+    <p class="loader__label mono">Initializing digital universe… <span id="loader-pct">0%</span></p>
+  </div>
+
+  <div id="webgl-fallback" class="webgl-fallback" hidden>
+    <p>WebGL is unavailable in this browser. Exploring ORBIT in reduced visual mode.</p>
+  </div>
+
+  {% if error_notice %}
+  <div class="notice" role="status">{{ error_notice }}</div>
+  {% endif %}
+
+  <header class="site-chrome" data-chrome>
+    <div class="chrome-left">
+      <a class="wordmark" href="#index" data-nav="index" aria-label="ORBIT home">ORBIT</a>
+      <span class="mono chrome-desc">{{ site.get("descriptor", "DIGITAL EXPERIENCE / 001") }}</span>
+    </div>
+    <div class="chrome-right">
+      <span class="status-pill mono" data-availability>
+        <span class="status-dot" aria-hidden="true"></span>
+        {{ site.get("availability", "Open for collaboration") }}
+      </span>
+      <a class="chrome-link mono" href="#contact" data-nav="contact">CONTACT</a>
+      <button type="button" class="icon-btn" id="terminal-toggle" aria-label="Open ORBIT terminal" aria-expanded="false" aria-controls="terminal" title="Terminal (Esc to close)">
+        <i data-lucide="terminal" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="icon-btn mobile-nav-toggle" id="mobile-nav-toggle" aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu">
+        <i data-lucide="menu" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
+
+  <nav id="mobile-nav" class="mobile-nav" hidden>
+    <a href="#index" data-nav="index">Index</a>
+    <a href="#work" data-nav="work">Work</a>
+    <a href="#playground" data-nav="playground">Playground</a>
+    <a href="#about" data-nav="about">About</a>
+    <a href="#capabilities" data-nav="capabilities">Capabilities</a>
+    <a href="#contact" data-nav="contact">Contact</a>
+  </nav>
+
+  <main id="main">
+    <section id="index" class="section section--hero" data-section-panel="index" aria-label="Index">
+      <canvas id="globe-canvas" class="globe-canvas" aria-label="Interactive ORBIT globe"></canvas>
+      <div id="globe-fallback" class="globe-fallback" hidden aria-hidden="true">
+        <div class="globe-fallback__scene">
+          <div class="globe-fallback__sphere"></div>
+          <div class="globe-fallback__ring"></div>
+          <div class="globe-fallback__eye"></div>
+        </div>
+      </div>
+      <div class="hero-grid">
+        <aside class="hero-editorial">
+          <p class="eyebrow mono">SYS // CORE</p>
+          <p class="hero-lede">A digital universe where ideas, experiments, and craft share one orbit.</p>
+          <ul class="meta-list mono" aria-label="Technical metadata">
+            <li>LAT 00.00 · LON ∞</li>
+            <li>RENDER · WEBGL</li>
+            <li>STACK · PYTHON / JS</li>
+          </ul>
+        </aside>
+        <div class="hero-center" aria-hidden="true"></div>
+        <div class="hero-copy">
+          <h1 class="hero-title">
+            <span>EXPLORE BEYOND</span>
+            <span>THE DIGITAL.</span>
+          </h1>
+          <p class="hero-sub">Where ideas find orbit.</p>
+        </div>
+      </div>
+      <div class="hero-bottom">
+        <button type="button" class="scroll-cue mono" data-nav="work" aria-label="Scroll to work">
+          <span class="scroll-cue__line" aria-hidden="true"></span>
+          SCROLL
+        </button>
+        <div class="hero-bottom__meta mono">
+          <span>SEC 01 / INDEX</span>
+          <span>INTERACTIVE GLOBE ONLINE</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="work" class="section section--work" data-section-panel="work" aria-labelledby="work-title">
+      <div class="section-inner">
+        <header class="section-head">
+          <p class="eyebrow mono">SEC 02 // WORK</p>
+          <h2 id="work-title">Objects in orbit.</h2>
+          <p class="section-sub">Demonstration projects from the ORBIT universe — replaceable, editable, and independently documented.</p>
+        </header>
+        <div class="project-rail" id="project-rail">
+          {% for project in projects %}
+          <article class="project-card" data-project-id="{{ project.id }}" tabindex="0">
+            <div class="project-card__media">
+              <img src="{{ project.preview }}" alt="Preview for {{ project.title }}" loading="lazy" width="1600" height="1000" />
+              <span class="project-card__number mono">{{ project.number }}</span>
+            </div>
+            <div class="project-card__body">
+              <p class="mono project-card__cat">{{ project.category }}</p>
+              <h3>{{ project.title }}</h3>
+              <p>{{ project.intro }}</p>
+              <button type="button" class="text-link" data-open-project="{{ project.id }}">Open case study →</button>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <section id="playground" class="section section--playground" data-section-panel="playground" aria-labelledby="playground-title">
+      <div class="section-inner">
+        <header class="section-head">
+          <p class="eyebrow mono">SEC 03 // PLAYGROUND</p>
+          <h2 id="playground-title">Beyond the interface.</h2>
+          <p class="section-sub">An experimental space for interactive ideas, visual systems, and creative code.</p>
+        </header>
+        <div class="experiment-grid" id="experiment-grid">
+          {% for exp in experiments %}
+          <article class="experiment-card" data-experiment="{{ exp.id }}">
+            <header>
+              <span class="mono">EXPERIMENT {{ exp.number }}</span>
+              <h3>{{ exp.title }}</h3>
+              <p>{{ exp.description }}</p>
+            </header>
+            <div class="experiment-stage" data-stage="{{ exp.id }}" role="img" aria-label="{{ exp.title }} interactive preview">
+              <p class="mono stage-placeholder">Click launch to initialize</p>
+            </div>
+            <div class="experiment-actions">
+              <button type="button" class="btn" data-launch-experiment="{{ exp.id }}">Launch</button>
+              <button type="button" class="btn btn--ghost" data-expand-experiment="{{ exp.id }}">Expand</button>
+              <button type="button" class="btn btn--ghost" data-reset-experiment="{{ exp.id }}">Reset</button>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="section section--about" data-section-panel="about" aria-labelledby="about-title">
+      <div class="section-inner about-layout">
+        <header class="section-head">
+          <p class="eyebrow mono">SEC 04 // ABOUT</p>
+          <h2 id="about-title">The philosophy of ORBIT.</h2>
+          <p class="about-quote">Everything is connected. Every idea creates movement. Every experiment opens another possibility.</p>
+        </header>
+        <div class="principle-grid">
+          <article>
+            <span class="mono">01</span>
+            <h3>Explore</h3>
+            <p>Curiosity drives discovery and experimentation.</p>
+          </article>
+          <article>
+            <span class="mono">02</span>
+            <h3>Create</h3>
+            <p>Ideas become experiences through technology and design.</p>
+          </article>
+          <article>
+            <span class="mono">03</span>
+            <h3>Evolve</h3>
+            <p>Digital experiences continuously improve through experimentation.</p>
+          </article>
+        </div>
+        <ol class="process-timeline mono" aria-label="Conceptual process">
+          <li>IDEA</li>
+          <li>EXPERIMENT</li>
+          <li>DEVELOPMENT</li>
+          <li>EXPERIENCE</li>
+        </ol>
+        <p class="about-credit mono">
+          Created by <strong>{{ site.get("creator", contact_name) }}</strong>
+          ·
+          <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>
+        </p>
+      </div>
+    </section>
+
+    <section id="capabilities" class="section section--capabilities" data-section-panel="capabilities" aria-labelledby="capabilities-title">
+      <div class="section-inner">
+        <header class="section-head">
+          <p class="eyebrow mono">SEC 05 // CAPABILITIES</p>
+          <h2 id="capabilities-title">Technology constellation.</h2>
+          <p class="section-sub">Technologies used to build ORBIT — not claims about a studio team.</p>
+        </header>
+        <div class="constellation-wrap">
+          <canvas id="constellation-canvas" width="900" height="520" aria-label="Interactive technology constellation"></canvas>
+          <aside class="constellation-detail" id="constellation-detail" aria-live="polite">
+            <p class="mono">SELECT A NODE</p>
+            <h3>ORBIT stack</h3>
+            <p>Choose a technology to see how it connects inside this project.</p>
+            <ul id="constellation-related"></ul>
+          </aside>
+        </div>
+        <ul class="capability-fallback" id="capability-list">
+          {% for cap in capabilities %}
+          <li>
+            <button type="button" class="capability-chip" data-capability="{{ cap.id }}">
+              <span class="mono">{{ cap.category }}</span>
+              <strong>{{ cap.name }}</strong>
+            </button>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+
+    <section id="contact" class="section section--contact" data-section-panel="contact" aria-labelledby="contact-title">
+      <div class="section-inner contact-layout">
+        <header class="section-head">
+          <p class="eyebrow mono">SEC 06 // CONTACT</p>
+          <h2 id="contact-title" class="contact-title">
+            <span>EVERYTHING</span>
+            <span>STARTS WITH</span>
+            <span>AN IDEA.</span>
+          </h2>
+          <p class="section-sub">Let’s create something extraordinary.</p>
+        </header>
+        <div class="contact-grid">
+          <div class="contact-meta">
+            <p class="mono">DIRECT</p>
+            <p class="contact-person">{{ site.get("creator", contact_name) }}</p>
+            <button type="button" class="email-copy" id="copy-email" data-email="{{ contact_email }}">
+              {{ contact_email }}
+              <span class="mono" id="copy-feedback">Copy</span>
+            </button>
+            <ul class="social-list">
+              {% for link in site.get("social", []) %}
+              <li><a href="{{ link.url }}" rel="noopener noreferrer" target="_blank">{{ link.label }}</a></li>
+              {% endfor %}
+            </ul>
+            <a class="text-link" href="#index" data-nav="index">← Back to index</a>
+          </div>
+          <form id="contact-form" class="contact-form" novalidate>
+            <div class="field">
+              <label for="name">Name</label>
+              <input id="name" name="name" type="text" autocomplete="name" required minlength="2" maxlength="80" />
+            </div>
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" autocomplete="email" required />
+            </div>
+            <div class="field">
+              <label for="subject">Subject</label>
+              <input id="subject" name="subject" type="text" required minlength="3" maxlength="120" />
+            </div>
+            <div class="field">
+              <label for="message">Message</label>
+              <textarea id="message" name="message" rows="5" required minlength="10" maxlength="4000"></textarea>
+            </div>
+            <div class="hp" aria-hidden="true">
+              <label for="website">Website</label>
+              <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+            </div>
+            <p class="form-status mono" id="form-status" role="status" aria-live="polite"></p>
+            <button type="submit" class="btn" id="contact-submit">Send message</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="site-footer__inner">
+      <p class="mono">ORBIT · {{ site.get("descriptor", "DIGITAL EXPERIENCE / 001") }}</p>
+      <p>
+        <span>{{ site.get("creator", contact_name) }}</span>
+        ·
+        <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>
+      </p>
+    </div>
+  </footer>
+
+  <div class="orbital-nav" id="orbital-nav" aria-label="Orbital section navigation">
+    <button type="button" class="orbital-nav__btn" data-nav="index" style="--i:0"><span>INDEX</span></button>
+    <button type="button" class="orbital-nav__btn" data-nav="work" style="--i:1"><span>WORK</span></button>
+    <button type="button" class="orbital-nav__btn" data-nav="about" style="--i:2"><span>ABOUT</span></button>
+    <button type="button" class="orbital-nav__btn" data-nav="contact" style="--i:3"><span>CONTACT</span></button>
+    <div class="orbital-nav__core" aria-hidden="true"><span></span></div>
+  </div>
+
+  <dialog id="project-dialog" class="project-dialog" aria-labelledby="project-dialog-title">
+    <div class="project-dialog__inner">
+      <button type="button" class="icon-btn project-dialog__close" id="project-dialog-close" aria-label="Close project">
+        <i data-lucide="x" aria-hidden="true"></i>
+      </button>
+      <div id="project-dialog-content"></div>
+    </div>
+  </dialog>
+
+  <dialog id="experiment-dialog" class="experiment-dialog" aria-label="Expanded experiment">
+    <div class="experiment-dialog__bar">
+      <p class="mono" id="experiment-dialog-title">Experiment</p>
+      <button type="button" class="icon-btn" id="experiment-dialog-close" aria-label="Close experiment">
+        <i data-lucide="x" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div id="experiment-dialog-stage" class="experiment-dialog__stage"></div>
+  </dialog>
+
+  <div id="terminal" class="terminal" hidden role="dialog" aria-modal="true" aria-label="ORBIT terminal">
+    <div class="terminal__chrome">
+      <span class="mono">ORBIT://TERMINAL</span>
+      <button type="button" class="icon-btn" id="terminal-close" aria-label="Close terminal">
+        <i data-lucide="x" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="terminal__output" id="terminal-output" aria-live="polite"></div>
+    <form class="terminal__form" id="terminal-form">
+      <label class="visually-hidden" for="terminal-input">Command</label>
+      <span class="mono prompt" aria-hidden="true">›</span>
+      <input id="terminal-input" class="mono" autocomplete="off" spellcheck="false" />
+    </form>
+  </div>
+
+  <script>
+    window.__ORBIT__ = {
+      siteUrl: {{ site_url | tojson }},
+      email: {{ contact_email | tojson }},
+      creator: {{ site.get("creator", contact_name) | tojson }},
+      projects: {{ projects | tojson }},
+      capabilities: {{ capabilities | tojson }},
+      experiments: {{ experiments | tojson }}
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script type="module" src="/static/js/main.js"></script>
+</body>
+</html>

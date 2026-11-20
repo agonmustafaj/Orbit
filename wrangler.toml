@@ -1,0 +1,14 @@
+# Cloudflare Pages — Git-connected project: `orbit`
+# Production: https://orbit.pages.dev/
+# Deploy path: Cloudflare dashboard Connect-to-Git (NOT GitHub Actions secrets).
+#
+# Dashboard build settings (Agon):
+#   Framework preset: None
+#   Build command:    npm run build
+#   Output directory: dist
+name = "orbit"
+compatibility_date = "2025-11-01"
+pages_build_output_dir = "./dist"
+
+# Optional contact secrets via Cloudflare dashboard only:
+#   RESEND_API_KEY, CONTACT_TO, CONTACT_FROM
