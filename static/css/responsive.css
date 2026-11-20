@@ -1,8 +1,10 @@
+/* Mobile / tablet — layout, safe areas, touch, iOS Safari */
+
 @media (max-width: 980px) {
   .hero-grid {
     grid-template-columns: 1fr;
     align-content: end;
-    padding-bottom: 7rem;
+    padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px));
   }
   .hero-editorial { max-width: 20rem; }
   .hero-copy { text-align: left; }
@@ -22,21 +24,163 @@
 }
 
 @media (max-width: 720px) {
+  :root {
+    --header-h: calc(3.75rem + env(safe-area-inset-top, 0px));
+  }
+
+  /* Fixed backgrounds are a major scroll-jank source on iOS */
+  body {
+    background-attachment: scroll;
+  }
+
+  .site-chrome {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+  }
+
   .chrome-desc,
   .status-pill { display: none; }
   .mobile-nav-toggle { display: inline-grid; }
   .orbital-nav { display: none; }
+
+  .mobile-nav {
+    inset: var(--header-h) max(0.75rem, env(safe-area-inset-right, 0px)) auto auto;
+    min-width: min(16rem, calc(100vw - 1.5rem));
+    max-height: calc(100dvh - var(--header-h) - 1rem);
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.5rem;
+    border-radius: 4px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+  }
+  .mobile-nav a {
+    min-height: 2.75rem;
+    display: flex;
+    align-items: center;
+    padding: 0.7rem 0.85rem;
+    -webkit-tap-highlight-color: transparent;
+  }
+
   .hero-title { font-size: clamp(2rem, 11vw, 3rem); }
   .hero-bottom {
     flex-direction: column;
     align-items: flex-start;
   }
   .hero-bottom__meta { text-align: left; }
-  .section { padding-bottom: 4rem; }
+
+  .section {
+    min-height: auto;
+    padding: calc(var(--header-h) + 1rem) max(1rem, env(safe-area-inset-left, 0px))
+      calc(3.5rem + env(safe-area-inset-bottom, 0px))
+      max(1rem, env(safe-area-inset-right, 0px));
+    scroll-margin-top: var(--header-h);
+  }
+  .section--hero {
+    min-height: 100svh;
+    min-height: 100dvh;
+  }
+
+  .section-head h2 {
+    font-size: clamp(1.75rem, 8vw, 2.6rem);
+  }
+  .contact-title {
+    font-size: clamp(1.8rem, 9vw, 2.8rem);
+  }
+
   .experiment-actions .btn { flex: 1 1 auto; }
+  .experiment-dialog__stage {
+    min-height: min(55dvh, 420px);
+  }
+
+  .project-dialog,
+  .experiment-dialog {
+    width: calc(100vw - 1rem);
+    max-height: calc(100dvh - 1rem - env(safe-area-inset-bottom, 0px));
+    margin: auto;
+  }
+
+  /* Terminal: near full-bleed on phones; clear chrome + home indicator */
+  .terminal {
+    left: max(0.5rem, env(safe-area-inset-left, 0px));
+    right: max(0.5rem, env(safe-area-inset-right, 0px));
+    bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+    width: auto;
+    height: min(70dvh, 520px);
+    max-height: calc(100dvh - var(--header-h) - 1rem);
+  }
+  .terminal__output {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  .terminal__form input {
+    font-size: 16px; /* prevent iOS input zoom */
+  }
+
+  .contact-form,
+  .email-copy {
+    width: 100%;
+  }
+  .field input,
+  .field textarea {
+    font-size: 16px; /* prevent iOS input zoom */
+    min-height: 2.75rem;
+  }
+  .field textarea { min-height: 8rem; }
+  .btn,
+  .email-copy,
+  .capability-chip,
+  .icon-btn {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .btn {
+    min-height: 2.85rem;
+    width: 100%;
+  }
+  .email-copy {
+    flex-wrap: wrap;
+    word-break: break-all;
+    font-size: 0.95rem;
+  }
+
+  .site-footer {
+    padding-bottom: calc(2.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .scroll-cue { display: none; }
+
+  /* Soften heavy glass on weak GPUs */
+  .orbital-nav,
+  .site-chrome {
+    backdrop-filter: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .wordmark { letter-spacing: 0.28em; font-size: 0.85rem; }
+  .hero-lede { max-width: none; }
+  .capability-chip { min-width: calc(50% - 0.35rem); flex: 1 1 calc(50% - 0.35rem); }
+  .terminal {
+    height: min(78dvh, 560px);
+  }
 }
 
 @media (min-width: 721px) {
   .mobile-nav-toggle { display: none !important; }
   .mobile-nav { display: none !important; }
+}
+
+/* Body lock while overlays open (set via JS). Avoid touch-action:none so
+   terminal output / mobile nav lists can still scroll on iOS. */
+body.is-nav-open,
+body.is-terminal-open {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+@supports (height: 100dvh) {
+  .section--hero {
+    min-height: 100dvh;
+  }
 }

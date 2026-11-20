@@ -5,14 +5,34 @@ export function initAnimations() {
 
   gsap.registerPlugin(ScrollTrigger);
 
+  const mobile =
+    window.innerWidth < 720 || window.matchMedia("(pointer: coarse)").matches;
+  // Lighter motion on phones — fewer ScrollTriggers = less jank while scrolling.
+  const dist = mobile ? 18 : 40;
+  const dur = mobile ? 0.55 : 1;
+
   gsap.from(".hero-title span", {
-    y: 40,
+    y: dist,
     opacity: 0,
-    duration: 1,
-    stagger: 0.12,
+    duration: dur,
+    stagger: mobile ? 0.06 : 0.12,
     ease: "power3.out",
-    delay: 0.15,
+    delay: 0.1,
   });
+
+  if (mobile) {
+    // One combined reveal per section head instead of per-child scroll triggers.
+    gsap.utils.toArray(".section-head").forEach((el) => {
+      gsap.from(el, {
+        scrollTrigger: { trigger: el, start: "top 88%", once: true },
+        y: 16,
+        opacity: 0,
+        duration: 0.5,
+        ease: "power2.out",
+      });
+    });
+    return;
+  }
 
   gsap.utils.toArray(".section-head").forEach((el) => {
     gsap.from(el.children, {
