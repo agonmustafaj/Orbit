@@ -30,7 +30,10 @@ class Settings:
         self.app_env: str = os.getenv("APP_ENV", "development")
         self.debug: bool = _bool(os.getenv("DEBUG"), default=True)
         self.site_url: str = os.getenv("SITE_URL", "http://localhost:8000").rstrip("/")
-        self.contact_email: str = os.getenv("CONTACT_EMAIL", "hello@orbit.studio")
+        self.contact_name: str = os.getenv("CONTACT_NAME", "Agon Mustafaj")
+        self.contact_email: str = os.getenv(
+            "CONTACT_EMAIL", "agonmustafaj01@gmail.com"
+        )
         self.contact_to: str = os.getenv("CONTACT_TO", self.contact_email)
         self.contact_from: str = os.getenv("CONTACT_FROM", "")
         self.resend_api_key: str = os.getenv("RESEND_API_KEY", "")

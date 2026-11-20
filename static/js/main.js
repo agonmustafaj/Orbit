@@ -103,6 +103,7 @@ async function boot() {
     experiments: data.experiments,
     capabilities: data.capabilities,
     email: data.email,
+    creator: data.creator,
   });
   initCapabilities(data.capabilities || []);
   initContactForm();

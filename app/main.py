@@ -70,6 +70,7 @@ async def index(request: Request) -> HTMLResponse:
             "experiments": data.get("experiments", []),
             "site_url": settings.site_url,
             "contact_email": settings.contact_email,
+            "contact_name": settings.contact_name,
         },
     )
 
@@ -89,6 +90,7 @@ async def not_found(request: Request, exc) -> HTMLResponse | JSONResponse:
             "experiments": data.get("experiments", []),
             "site_url": settings.site_url,
             "contact_email": settings.contact_email,
+            "contact_name": settings.contact_name,
             "error_notice": "The requested path was not found. Returning to ORBIT.",
         },
         status_code=404,

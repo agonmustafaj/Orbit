@@ -85,7 +85,11 @@ export function initTerminal(data = {}) {
         );
         return;
       case "contact":
-        print(`Email: ${data.email || "hello@orbit.studio"}\nSection: #contact`);
+        print(
+          `Operator: ${data.creator || "Agon Mustafaj"}\n` +
+            `Email: ${data.email || "agonmustafaj01@gmail.com"}\n` +
+            `Section: #contact`
+        );
         return;
       case "clear":
         if (output) output.textContent = "";
@@ -102,7 +106,11 @@ export function initTerminal(data = {}) {
         print("There is no spoon — only wireframes and intention.");
         return;
       case "whoami":
-        print("guest@orbit — explorer status: curious");
+        print(
+          `${data.creator || "Agon Mustafaj"}\n` +
+            `${data.email || "agonmustafaj01@gmail.com"}\n` +
+            `Role: ORBIT operator`
+        );
         return;
       case "":
         return;

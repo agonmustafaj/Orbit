@@ -34,7 +34,8 @@ def main() -> None:
         capabilities=portfolio.get("capabilities", []),
         experiments=portfolio.get("experiments", []),
         site_url=SITE_URL,
-        contact_email=site.get("email", "hello@orbit.studio"),
+        contact_email=site.get("email", "agonmustafaj01@gmail.com"),
+        contact_name=site.get("creator", "Agon Mustafaj"),
         error_notice=None,
     )
 

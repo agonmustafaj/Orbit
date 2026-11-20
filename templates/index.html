@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ORBIT — Explore Beyond the Digital</title>
   <meta name="description" content="ORBIT is an immersive digital experience — a futuristic creative universe with interactive 3D, experimental playgrounds, and cinematic web design." />
+  <meta name="author" content="{{ site.get('creator', contact_name) }}" />
   <link rel="canonical" href="{{ site_url }}/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="ORBIT — Explore Beyond the Digital" />
@@ -12,6 +13,7 @@
   <meta property="og:url" content="{{ site_url }}/" />
   <meta property="og:image" content="{{ site_url }}/static/images/og-orbit.svg" />
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:creator" content="{{ site.get('creator', contact_name) }}" />
   <meta name="theme-color" content="#050308" />
   <link rel="icon" href="/static/images/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -27,9 +29,19 @@
     "name": "ORBIT",
     "url": "{{ site_url }}/",
     "description": "Immersive digital experience and creative development project.",
+    "author": {
+      "@type": "Person",
+      "name": "{{ site.get('creator', contact_name) }}",
+      "email": "{{ contact_email }}"
+    },
+    "creator": {
+      "@type": "Person",
+      "name": "{{ site.get('creator', contact_name) }}",
+      "email": "{{ contact_email }}"
+    },
     "potentialAction": {
       "@type": "CommunicateAction",
-      "target": "{{ site_url }}/#contact"
+      "target": "mailto:{{ contact_email }}"
     }
   }
   </script>
@@ -209,6 +221,11 @@
           <li>DEVELOPMENT</li>
           <li>EXPERIENCE</li>
         </ol>
+        <p class="about-credit mono">
+          Created by <strong>{{ site.get("creator", contact_name) }}</strong>
+          ·
+          <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>
+        </p>
       </div>
     </section>
 
@@ -255,6 +272,7 @@
         <div class="contact-grid">
           <div class="contact-meta">
             <p class="mono">DIRECT</p>
+            <p class="contact-person">{{ site.get("creator", contact_name) }}</p>
             <button type="button" class="email-copy" id="copy-email" data-email="{{ contact_email }}">
               {{ contact_email }}
               <span class="mono" id="copy-feedback">Copy</span>
@@ -294,6 +312,17 @@
       </div>
     </section>
   </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="site-footer__inner">
+      <p class="mono">ORBIT · {{ site.get("descriptor", "DIGITAL EXPERIENCE / 001") }}</p>
+      <p>
+        <span>{{ site.get("creator", contact_name) }}</span>
+        ·
+        <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>
+      </p>
+    </div>
+  </footer>
 
   <div class="orbital-nav" id="orbital-nav" aria-label="Orbital section navigation">
     <button type="button" class="orbital-nav__btn" data-nav="index" style="--i:0"><span>INDEX</span></button>
@@ -341,6 +370,7 @@
     window.__ORBIT__ = {
       siteUrl: {{ site_url | tojson }},
       email: {{ contact_email | tojson }},
+      creator: {{ site.get("creator", contact_name) | tojson }},
       projects: {{ projects | tojson }},
       capabilities: {{ capabilities | tojson }},
       experiments: {{ experiments | tojson }}
