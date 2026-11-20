@@ -9,6 +9,16 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
     return null;
   }
 
+  // Probe WebGL before constructing the full renderer
+  const probe = document.createElement("canvas");
+  const gl =
+    probe.getContext("webgl2", { failIfMajorPerformanceCaveat: false }) ||
+    probe.getContext("webgl", { failIfMajorPerformanceCaveat: false });
+  if (!gl) {
+    onFallback?.("WebGL context unavailable");
+    return null;
+  }
+
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({
@@ -16,7 +26,11 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
       antialias: true,
       alpha: true,
       powerPreference: "high-performance",
+      failIfMajorPerformanceCaveat: false,
     });
+    // Force a clear to confirm the context is usable
+    renderer.setClearColor(0x000000, 0);
+    renderer.clear();
   } catch (err) {
     onFallback?.(String(err));
     return null;

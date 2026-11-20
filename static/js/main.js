@@ -78,10 +78,16 @@ async function boot() {
   const fallback = document.getElementById("webgl-fallback");
   let globe = null;
 
+  const cssGlobe = document.getElementById("globe-fallback");
   globe = createGlobe(canvas, {
     onReady: () => loader.set(55),
     onFallback: () => {
-      fallback.hidden = false;
+      if (fallback) fallback.hidden = false;
+      if (cssGlobe) {
+        cssGlobe.hidden = false;
+        cssGlobe.setAttribute("aria-hidden", "false");
+      }
+      if (canvas) canvas.style.opacity = "0";
       loader.set(55);
     },
   });
