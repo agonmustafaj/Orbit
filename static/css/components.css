@@ -511,6 +511,10 @@
   background: rgba(4, 10, 8, 0.96);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
 }
+/* Author `display: grid` otherwise overrides the HTML `hidden` attribute */
+.terminal[hidden] {
+  display: none !important;
+}
 .terminal__chrome {
   display: flex;
   justify-content: space-between;

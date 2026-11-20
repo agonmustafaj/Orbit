@@ -6,6 +6,7 @@ const HELP = `Available commands:
   technologies  stack overview
   contact       contact channels
   clear         clear the screen
+  exit          close terminal
 
 Hidden: orbit, matrix, whoami`;
 
@@ -17,6 +18,8 @@ export function initTerminal(data = {}) {
   const openBtn = document.getElementById("terminal-toggle");
   const closeBtn = document.getElementById("terminal-close");
 
+  const isOpen = () => Boolean(root && !root.hasAttribute("hidden"));
+
   const print = (text) => {
     if (!output) return;
     output.textContent += `${text}\n`;
@@ -25,8 +28,10 @@ export function initTerminal(data = {}) {
 
   const open = () => {
     if (!root) return;
-    root.hidden = false;
-    if (!output.dataset.booted) {
+    root.removeAttribute("hidden");
+    root.setAttribute("aria-hidden", "false");
+    openBtn?.setAttribute("aria-expanded", "true");
+    if (output && !output.dataset.booted) {
       print("ORBIT terminal online. Type `help` to begin.");
       output.dataset.booted = "1";
     }
@@ -34,7 +39,11 @@ export function initTerminal(data = {}) {
   };
 
   const close = () => {
-    if (root) root.hidden = true;
+    if (!root) return;
+    root.setAttribute("hidden", "");
+    root.setAttribute("aria-hidden", "true");
+    openBtn?.setAttribute("aria-expanded", "false");
+    openBtn?.focus();
   };
 
   const run = (raw) => {
@@ -74,6 +83,11 @@ export function initTerminal(data = {}) {
       case "clear":
         if (output) output.textContent = "";
         break;
+      case "exit":
+      case "quit":
+      case "close":
+        close();
+        break;
       case "orbit":
         print("◯ ring synchronized · violet core stable · welcome traveler");
         break;
@@ -90,8 +104,20 @@ export function initTerminal(data = {}) {
     }
   };
 
-  openBtn?.addEventListener("click", open);
-  closeBtn?.addEventListener("click", close);
+  openBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isOpen()) close();
+    else open();
+  });
+
+  // Lucide replaces inner <i> with <svg>; listen on the button and capture clicks on children
+  closeBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    close();
+  });
+
   form?.addEventListener("submit", (e) => {
     e.preventDefault();
     const value = input.value;
@@ -102,11 +128,22 @@ export function initTerminal(data = {}) {
   window.addEventListener("keydown", (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
       e.preventDefault();
-      if (root?.hidden) open();
-      else close();
+      if (isOpen()) close();
+      else open();
+      return;
     }
-    if (e.key === "Escape" && root && !root.hidden) close();
+    if (e.key === "Escape" && isOpen()) {
+      e.preventDefault();
+      close();
+    }
   });
+
+  // Ensure closed on init (display:grid must not override [hidden])
+  if (root) {
+    root.setAttribute("hidden", "");
+    root.setAttribute("aria-hidden", "true");
+  }
+  openBtn?.setAttribute("aria-expanded", "false");
 
   return { open, close, run };
 }
