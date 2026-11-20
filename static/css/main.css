@@ -34,6 +34,8 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -48,6 +50,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
   color: var(--ink);
   background:
     radial-gradient(ellipse 80% 50% at 70% 30%, rgba(88, 28, 135, 0.28), transparent 55%),
@@ -58,6 +61,7 @@ body {
   font-weight: 400;
   line-height: 1.55;
   overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 
 img { max-width: 100%; display: block; }
@@ -233,6 +237,7 @@ a:hover { color: #fff; }
   position: relative;
   min-height: 100vh;
   padding: calc(var(--header-h) + 1.5rem) clamp(1rem, 4vw, 3rem) 5rem;
+  scroll-margin-top: var(--header-h);
 }
 
 .section-inner { width: min(100%, var(--max)); margin: 0 auto; }

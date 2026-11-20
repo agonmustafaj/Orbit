@@ -9,11 +9,16 @@ export function initNavigation({ onSectionChange } = {}) {
 
   const navIsOpen = () => Boolean(mobileNav && !mobileNav.hasAttribute("hidden"));
 
+  const syncBodyLock = () => {
+    document.body.classList.toggle("is-nav-open", navIsOpen());
+  };
+
   const closeMobileNav = () => {
     if (!mobileNav) return;
     mobileNav.setAttribute("hidden", "");
     mobileNav.setAttribute("aria-hidden", "true");
     mobileToggle?.setAttribute("aria-expanded", "false");
+    syncBodyLock();
   };
 
   const openMobileNav = () => {
@@ -21,6 +26,7 @@ export function initNavigation({ onSectionChange } = {}) {
     mobileNav.removeAttribute("hidden");
     mobileNav.setAttribute("aria-hidden", "false");
     mobileToggle?.setAttribute("aria-expanded", "true");
+    syncBodyLock();
   };
 
   const toggleMobileNav = () => {
@@ -45,15 +51,17 @@ export function initNavigation({ onSectionChange } = {}) {
   const goTo = (id, { smooth = true } = {}) => {
     const el = document.getElementById(id);
     if (!el) return;
-    el.scrollIntoView({
-      behavior:
-        smooth && !window.matchMedia("(prefers-reduced-motion: reduce)").matches
-          ? "smooth"
-          : "auto",
-      block: "start",
+    // Close overlays first so scroll isn't locked / offset wrong on iOS.
+    closeMobileNav();
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Prefer scrollIntoView; on iOS, requestAnimationFrame after unlock helps.
+    requestAnimationFrame(() => {
+      el.scrollIntoView({
+        behavior: smooth && !reduce ? "smooth" : "auto",
+        block: "start",
+      });
     });
     setActive(id);
-    closeMobileNav();
   };
 
   buttons.forEach((btn) => {
@@ -72,7 +80,6 @@ export function initNavigation({ onSectionChange } = {}) {
     toggleMobileNav();
   });
 
-  // Outside / overlay click closes menu
   document.addEventListener("click", (e) => {
     if (!navIsOpen()) return;
     const t = e.target;
@@ -87,6 +94,9 @@ export function initNavigation({ onSectionChange } = {}) {
       mobileToggle?.focus();
     }
   });
+
+  // Orientation / resize: keep menu closed so it doesn't float oddly.
+  window.addEventListener("orientationchange", closeMobileNav);
 
   const observer = new IntersectionObserver(
     (entries) => {

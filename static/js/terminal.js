@@ -30,6 +30,24 @@ export function initTerminal(data = {}) {
     output.scrollTop = output.scrollHeight;
   };
 
+  const syncBodyLock = () => {
+    document.body.classList.toggle("is-terminal-open", isOpen());
+  };
+
+  const fitToViewport = () => {
+    if (!root || !isOpen()) return;
+    const vv = window.visualViewport;
+    if (!vv || window.innerWidth > 720) {
+      root.style.bottom = "";
+      root.style.height = "";
+      return;
+    }
+    // Keep terminal above the iOS keyboard / shrinking visual viewport.
+    const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+    root.style.bottom = `${Math.max(8, inset + 8)}px`;
+    root.style.height = `${Math.min(vv.height * 0.72, 520)}px`;
+  };
+
   const open = () => {
     if (!root) return;
     root.removeAttribute("hidden");
@@ -40,7 +58,10 @@ export function initTerminal(data = {}) {
       print(loreHelpLine());
       output.dataset.booted = "1";
     }
-    input?.focus();
+    syncBodyLock();
+    fitToViewport();
+    // Delay focus so iOS keyboard + layout settle without jump.
+    requestAnimationFrame(() => input?.focus({ preventScroll: true }));
   };
 
   const close = () => {
@@ -48,7 +69,10 @@ export function initTerminal(data = {}) {
     root.setAttribute("hidden", "");
     root.setAttribute("aria-hidden", "true");
     openBtn?.setAttribute("aria-expanded", "false");
-    openBtn?.focus();
+    root.style.bottom = "";
+    root.style.height = "";
+    syncBodyLock();
+    openBtn?.focus({ preventScroll: true });
   };
 
   const run = (raw) => {
@@ -162,11 +186,15 @@ export function initTerminal(data = {}) {
     }
   });
 
+  window.visualViewport?.addEventListener("resize", fitToViewport);
+  window.visualViewport?.addEventListener("scroll", fitToViewport);
+
   if (root) {
     root.setAttribute("hidden", "");
     root.setAttribute("aria-hidden", "true");
   }
   openBtn?.setAttribute("aria-expanded", "false");
+  syncBodyLock();
 
   return { open, close, run };
 }

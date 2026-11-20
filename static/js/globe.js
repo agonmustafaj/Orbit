@@ -1,10 +1,67 @@
 /**
  * ORBIT hero globe — wireframe sphere, orbital ring, central eye, particles.
  * Three.js is loaded as an ES module (r170+ no longer ships UMD three.min.js).
+ * Mobile / iOS: lower geometry, DPR, and pause when off-screen for smooth FPS.
  */
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js";
 
 const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function qualityProfile() {
+  const w = window.innerWidth || 1024;
+  const coarse = window.matchMedia("(pointer: coarse)").matches;
+  const saveData = Boolean(navigator.connection?.saveData);
+  const mobile = w < 720 || coarse;
+  if (saveData || (mobile && w < 400)) {
+    return {
+      id: "low",
+      dpr: 1,
+      antialias: false,
+      sphereSeg: [24, 16],
+      innerSeg: [16, 12],
+      atmoSeg: 16,
+      ringSeg: 72,
+      particles: 36,
+      latLines: false,
+      atmosphere: false,
+      inner: false,
+      standardEye: false,
+      lights: false,
+    };
+  }
+  if (mobile) {
+    return {
+      id: "mid",
+      dpr: 1.25,
+      antialias: false,
+      sphereSeg: [32, 20],
+      innerSeg: [20, 14],
+      atmoSeg: 20,
+      ringSeg: 96,
+      particles: 56,
+      latLines: true,
+      atmosphere: false,
+      inner: true,
+      standardEye: false,
+      lights: false,
+    };
+  }
+  return {
+    id: "high",
+    dpr: 1.75,
+    antialias: (window.devicePixelRatio || 1) < 2,
+    sphereSeg: [48, 32],
+    innerSeg: [32, 24],
+    atmoSeg: 32,
+    ringSeg: 180,
+    particles: 160,
+    latLines: true,
+    atmosphere: true,
+    inner: true,
+    standardEye: true,
+    lights: true,
+  };
+}
 
 function readSize(canvas) {
   const parent = canvas?.parentElement || document.body;
@@ -31,15 +88,16 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
     return null;
   }
 
+  const q = qualityProfile();
+
   // Do NOT probe WebGL on a throwaway canvas first — iOS Safari has a very
   // low simultaneous WebGL context limit; a probe can steal the only slot.
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({
       canvas,
-      antialias: window.devicePixelRatio < 2,
+      antialias: q.antialias,
       alpha: true,
-      // "high-performance" can false-fail on iOS Safari; default is safer.
       powerPreference: "default",
       failIfMajorPerformanceCaveat: false,
       premultipliedAlpha: true,
@@ -71,7 +129,7 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
   const violet = 0xa855f7;
   const soft = 0xc4b5fd;
 
-  const sphereGeo = new THREE.SphereGeometry(1.35, 48, 32);
+  const sphereGeo = new THREE.SphereGeometry(1.35, q.sphereSeg[0], q.sphereSeg[1]);
   const wire = new THREE.Mesh(
     sphereGeo,
     new THREE.MeshBasicMaterial({
@@ -83,67 +141,75 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
   );
   globeGroup.add(wire);
 
-  const inner = new THREE.Mesh(
-    new THREE.SphereGeometry(1.18, 32, 24),
-    new THREE.MeshBasicMaterial({
-      color: soft,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.18,
-    })
-  );
-  globeGroup.add(inner);
-
-  const latMat = new THREE.LineBasicMaterial({
-    color: soft,
-    transparent: true,
-    opacity: 0.35,
-  });
-  for (let i = -2; i <= 2; i += 1) {
-    const phi = (Math.PI / 2) * (i / 3);
-    const r = Math.cos(phi) * 1.36;
-    const y = Math.sin(phi) * 1.36;
-    const curve = new THREE.EllipseCurve(0, 0, r, r, 0, Math.PI * 2, false, 0);
-    const pts = curve.getPoints(64).map((p) => new THREE.Vector3(p.x, y, p.y));
-    const geo = new THREE.BufferGeometry().setFromPoints(pts);
-    globeGroup.add(new THREE.LineLoop(geo, latMat));
+  if (q.inner) {
+    globeGroup.add(
+      new THREE.Mesh(
+        new THREE.SphereGeometry(1.18, q.innerSeg[0], q.innerSeg[1]),
+        new THREE.MeshBasicMaterial({
+          color: soft,
+          wireframe: true,
+          transparent: true,
+          opacity: 0.18,
+        })
+      )
+    );
   }
 
-  const atmosphere = new THREE.Mesh(
-    new THREE.SphereGeometry(1.55, 32, 32),
-    new THREE.MeshBasicMaterial({
-      color: violet,
+  if (q.latLines) {
+    const latMat = new THREE.LineBasicMaterial({
+      color: soft,
       transparent: true,
-      opacity: 0.06,
-      side: THREE.BackSide,
-    })
-  );
-  globeGroup.add(atmosphere);
+      opacity: 0.35,
+    });
+    for (let i = -2; i <= 2; i += 1) {
+      const phi = (Math.PI / 2) * (i / 3);
+      const r = Math.cos(phi) * 1.36;
+      const y = Math.sin(phi) * 1.36;
+      const curve = new THREE.EllipseCurve(0, 0, r, r, 0, Math.PI * 2, false, 0);
+      const pts = curve.getPoints(48).map((p) => new THREE.Vector3(p.x, y, p.y));
+      const geo = new THREE.BufferGeometry().setFromPoints(pts);
+      globeGroup.add(new THREE.LineLoop(geo, latMat));
+    }
+  }
+
+  if (q.atmosphere) {
+    globeGroup.add(
+      new THREE.Mesh(
+        new THREE.SphereGeometry(1.55, q.atmoSeg, q.atmoSeg),
+        new THREE.MeshBasicMaterial({
+          color: violet,
+          transparent: true,
+          opacity: 0.06,
+          side: THREE.BackSide,
+        })
+      )
+    );
+  }
 
   const eye = new THREE.Group();
-  const lid = new THREE.Mesh(
-    new THREE.OctahedronGeometry(0.28, 0),
-    new THREE.MeshStandardMaterial({
-      color: 0x12081c,
-      metalness: 0.4,
-      roughness: 0.35,
-      emissive: 0x2e1065,
-      emissiveIntensity: 0.35,
-    })
-  );
+  const eyeMat = q.standardEye
+    ? new THREE.MeshStandardMaterial({
+        color: 0x12081c,
+        metalness: 0.4,
+        roughness: 0.35,
+        emissive: 0x2e1065,
+        emissiveIntensity: 0.35,
+      })
+    : new THREE.MeshBasicMaterial({ color: 0x2e1065 });
+  const lid = new THREE.Mesh(new THREE.OctahedronGeometry(0.28, 0), eyeMat);
   lid.scale.set(1.4, 0.85, 1);
-  const pupil = new THREE.Mesh(
-    new THREE.SphereGeometry(0.12, 24, 24),
-    new THREE.MeshStandardMaterial({
-      color: 0xe9d5ff,
-      emissive: violet,
-      emissiveIntensity: 1.4,
-      metalness: 0.2,
-      roughness: 0.2,
-    })
-  );
+  const pupilMat = q.standardEye
+    ? new THREE.MeshStandardMaterial({
+        color: 0xe9d5ff,
+        emissive: violet,
+        emissiveIntensity: 1.4,
+        metalness: 0.2,
+        roughness: 0.2,
+      })
+    : new THREE.MeshBasicMaterial({ color: soft });
+  const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), pupilMat);
   const halo = new THREE.Mesh(
-    new THREE.RingGeometry(0.18, 0.26, 48),
+    new THREE.RingGeometry(0.18, 0.26, q.id === "high" ? 48 : 24),
     new THREE.MeshBasicMaterial({
       color: soft,
       transparent: true,
@@ -159,29 +225,33 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
   ringGroup.rotation.x = THREE.MathUtils.degToRad(72);
   ringGroup.rotation.z = THREE.MathUtils.degToRad(-18);
   const ring = new THREE.Mesh(
-    new THREE.TorusGeometry(2.05, 0.018, 16, 180),
+    new THREE.TorusGeometry(2.05, 0.018, 12, q.ringSeg),
     new THREE.MeshBasicMaterial({ color: soft })
   );
   const ringGlow = new THREE.Mesh(
-    new THREE.TorusGeometry(2.05, 0.055, 16, 120),
+    new THREE.TorusGeometry(2.05, 0.055, 12, Math.max(48, Math.floor(q.ringSeg * 0.66))),
     new THREE.MeshBasicMaterial({
       color: violet,
       transparent: true,
       opacity: 0.28,
     })
   );
-  const trail = new THREE.Mesh(
-    new THREE.TorusGeometry(2.05, 0.008, 8, 64, Math.PI * 0.55),
-    new THREE.MeshBasicMaterial({
-      color: 0xf5f3ff,
-      transparent: true,
-      opacity: 0.85,
-    })
-  );
-  ringGroup.add(ring, ringGlow, trail);
+  ringGroup.add(ring, ringGlow);
+  if (q.id === "high") {
+    ringGroup.add(
+      new THREE.Mesh(
+        new THREE.TorusGeometry(2.05, 0.008, 8, 64, Math.PI * 0.55),
+        new THREE.MeshBasicMaterial({
+          color: 0xf5f3ff,
+          transparent: true,
+          opacity: 0.85,
+        })
+      )
+    );
+  }
   root.add(ringGroup);
 
-  const count = window.innerWidth < 720 ? 80 : 160;
+  const count = q.particles;
   const positions = new Float32Array(count * 3);
   for (let i = 0; i < count; i += 1) {
     const r = 2.4 + Math.random() * 2.2;
@@ -197,7 +267,7 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
     pGeo,
     new THREE.PointsMaterial({
       color: soft,
-      size: 0.02,
+      size: q.id === "high" ? 0.02 : 0.028,
       transparent: true,
       opacity: 0.75,
       sizeAttenuation: true,
@@ -205,52 +275,80 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
   );
   root.add(particles);
 
-  scene.add(new THREE.AmbientLight(0x4c1d95, 0.7));
-  const key = new THREE.PointLight(violet, 40, 12);
-  key.position.set(2.5, 1.5, 3);
-  scene.add(key);
-  const fill = new THREE.PointLight(0x7c3aed, 18, 10);
-  fill.position.set(-2, -1, 2);
-  scene.add(fill);
+  if (q.lights) {
+    scene.add(new THREE.AmbientLight(0x4c1d95, 0.7));
+    const key = new THREE.PointLight(violet, 40, 12);
+    key.position.set(2.5, 1.5, 3);
+    scene.add(key);
+    const fill = new THREE.PointLight(0x7c3aed, 18, 10);
+    fill.position.set(-2, -1, 2);
+    scene.add(fill);
+  }
 
   const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
   const onPointer = (e) => {
+    // Ignore synthetic mouse after touch; only tilt from primary pointer over hero.
+    if (e.pointerType === "touch" && e.target !== canvas) return;
     const rect = canvas.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
+    // On touch, ignore moves outside the hero so scrolling isn't fighting the globe.
+    if (e.pointerType === "touch") {
+      if (
+        e.clientX < rect.left ||
+        e.clientX > rect.right ||
+        e.clientY < rect.top ||
+        e.clientY > rect.bottom
+      ) {
+        return;
+      }
+    }
     pointer.tx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
     pointer.ty = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
   };
   window.addEventListener("pointermove", onPointer, { passive: true });
 
   let scrollT = 0;
+  let scrollQueued = false;
   const onScroll = () => {
-    const max = Math.max(1, document.body.scrollHeight - window.innerHeight);
-    scrollT = window.scrollY / max;
+    if (scrollQueued) return;
+    scrollQueued = true;
+    requestAnimationFrame(() => {
+      scrollQueued = false;
+      const max = Math.max(1, document.body.scrollHeight - window.innerHeight);
+      scrollT = window.scrollY / max;
+    });
   };
   window.addEventListener("scroll", onScroll, { passive: true });
 
   const setSize = () => {
     const { w, h } = readSize(canvas);
-    // Cap DPR harder on phones — iOS Safari is memory-sensitive.
-    const dprCap = window.innerWidth < 720 ? 1.5 : 1.75;
-    const dpr = Math.min(window.devicePixelRatio || 1, dprCap);
+    const dpr = Math.min(window.devicePixelRatio || 1, q.dpr);
     renderer.setPixelRatio(dpr);
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
   };
   setSize();
-  // Layout can settle after first paint on iOS (100vh / safe-area).
   requestAnimationFrame(setSize);
   window.addEventListener("resize", setSize);
   window.addEventListener("orientationchange", setSize);
 
   let raf = 0;
   let running = true;
+  let visible = true;
+  let pageVisible = document.visibilityState !== "hidden";
   const clock = new THREE.Clock();
+  let lastFrame = 0;
+  // ~30fps on mid/low phones; full 60 on desktop.
+  const minFrameMs = q.id === "high" ? 1000 / 60 : 1000 / 30;
 
-  const tick = () => {
+  const tick = (now) => {
     if (!running) return;
+    raf = requestAnimationFrame(tick);
+    if (!visible || !pageVisible) return;
+    if (now - lastFrame < minFrameMs) return;
+    lastFrame = now;
+
     const t = clock.getElapsedTime();
     pointer.x += (pointer.tx - pointer.x) * 0.05;
     pointer.y += (pointer.ty - pointer.y) * 0.05;
@@ -269,12 +367,29 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
     }
 
     renderer.render(scene, camera);
-    raf = requestAnimationFrame(tick);
   };
-  tick();
+  raf = requestAnimationFrame(tick);
   onReady?.();
 
+  const hero = canvas.parentElement;
+  const io =
+    hero &&
+    new IntersectionObserver(
+      ([entry]) => {
+        visible = Boolean(entry?.isIntersecting);
+        if (visible) clock.getDelta();
+      },
+      { threshold: 0.05 }
+    );
+  if (hero && io) io.observe(hero);
+
+  const onVisibility = () => {
+    pageVisible = document.visibilityState !== "hidden";
+  };
+  document.addEventListener("visibilitychange", onVisibility);
+
   return {
+    quality: q.id,
     setSectionInfluence(sectionId) {
       const map = {
         index: 0,
@@ -293,6 +408,8 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", setSize);
       window.removeEventListener("orientationchange", setSize);
+      document.removeEventListener("visibilitychange", onVisibility);
+      io?.disconnect();
       renderer.dispose();
       sphereGeo.dispose();
     },
