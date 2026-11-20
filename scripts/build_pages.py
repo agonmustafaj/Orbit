@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Build static Cloudflare Pages output into ./dist."""
+"""Build Cloudflare Pages output into ./dist.
+
+Dashboard (Git-connected project `orbit`):
+  Framework: None
+  Build command: npm run build
+  Output directory: dist
+"""
 
 from __future__ import annotations
 
@@ -12,13 +18,10 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 ROOT = Path(__file__).resolve().parent.parent
 DIST = ROOT / "dist"
 DATA = ROOT / "app" / "data" / "portfolio.json"
+SITE_URL = "https://orbit.pages.dev"
 
 
 def main() -> None:
-    if DIST.exists():
-        shutil.rmtree(DIST)
-    DIST.mkdir(parents=True)
-
     portfolio = json.loads(DATA.read_text(encoding="utf-8"))
     site = portfolio.get("site", {})
     env = Environment(
@@ -30,22 +33,22 @@ def main() -> None:
         projects=portfolio.get("projects", []),
         capabilities=portfolio.get("capabilities", []),
         experiments=portfolio.get("experiments", []),
-        site_url="https://orbit.pages.dev",
+        site_url=SITE_URL,
         contact_email=site.get("email", "hello@orbit.studio"),
         error_notice=None,
     )
-    (DIST / "index.html").write_text(html, encoding="utf-8")
 
+    if DIST.exists():
+        shutil.rmtree(DIST)
+    DIST.mkdir(parents=True)
+
+    (DIST / "index.html").write_text(html, encoding="utf-8")
+    (DIST / "404.html").write_text(html, encoding="utf-8")
     shutil.copytree(ROOT / "static", DIST / "static")
     data_dir = DIST / "static" / "data"
     data_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy2(DATA, data_dir / "portfolio.json")
-
-    worker_src = ROOT / "workers" / "pages_worker.js"
-    shutil.copy2(worker_src, DIST / "_worker.js")
-
-    # SPA-ish fallback
-    (DIST / "404.html").write_text(html, encoding="utf-8")
+    shutil.copy2(ROOT / "workers" / "pages_worker.js", DIST / "_worker.js")
     print(f"Built Pages output → {DIST}")
 
 

@@ -1,19 +1,40 @@
 # ORBIT
 
-Immersive digital experience — interactive Three.js globe, experimental playground, FastAPI (local) / Cloudflare Pages (production).
+Immersive digital experience — Three.js globe, playground, FastAPI (local) / Cloudflare Pages (production).
 
-**Production:** https://orbit.pages.dev/  
-(Git-connected Cloudflare Pages project: `orbit`. Empty sibling slug `orbit-83j.pages.dev` is not the active Git target.)
+**Production:** https://orbit.pages.dev/ (Git-connected Pages project `orbit`)
 
-ORBIT is a standalone project. It is not the personal portfolio and must stay independent.
+Standalone project — not the personal portfolio.
 
-## Stack
+## Deploy pattern (same as Agon’s live sites)
 
-- **Frontend:** HTML, CSS, JavaScript, Three.js, GSAP, Lucide
-- **Local backend:** Python 3.12+, FastAPI, Pydantic, Uvicorn
-- **Production:** Cloudflare Pages (`orbit-83j`) + Advanced Mode `_worker.js` for `/api/*`
+**Cloudflare Pages ↔ GitHub Connect to Git.** No GitHub Actions secrets.
 
-## Local development (FastAPI)
+| Project | How it deploys |
+| --- | --- |
+| hoxhahandwerk | CF Pages Git + dashboard settings |
+| roofman | CF Pages Git + `npm run build` → `dist` |
+| agodev | Prefer CF Pages Git; GHA workflow exists but fails without secrets (unused) |
+
+### Dashboard settings for Orbit
+
+| Setting | Value |
+| --- | --- |
+| Framework preset | **None** |
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+
+Optional contact secrets in the **Cloudflare** dashboard only: `RESEND_API_KEY`, `CONTACT_TO`, `CONTACT_FROM`.
+
+### Optional local one-shot
+
+```bash
+npx wrangler login
+npm run build
+npx wrangler pages deploy dist --project-name=orbit
+```
+
+## Local (FastAPI)
 
 ```bash
 python3 -m venv .venv
@@ -23,44 +44,4 @@ cp .env.example .env
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Open http://127.0.0.1:8000/
-
-### API
-
-| Method | Path | Description |
-| --- | --- | --- |
-| GET | `/api/health` | Health check |
-| GET | `/api/projects` | All projects |
-| GET | `/api/projects/{id}` | Single project |
-| GET | `/api/site` | Site + capabilities metadata |
-| POST | `/api/contact` | Contact form (Pydantic-validated) |
-
-Contact email delivery is optional. Without `RESEND_API_KEY` + `CONTACT_FROM` + `CONTACT_TO`, the API validates and accepts messages but does **not** claim email delivery.
-
-## Cloudflare Pages deploy
-
-Git-connected project: **`orbit`** → https://orbit.pages.dev/
-
-Dashboard / build settings (if editing manually):
-
-| Setting | Value |
-| --- | --- |
-| Framework preset | None |
-| Build command | `npm run build` |
-| Build output directory | `dist` |
-
-```bash
-npm run build
-# or: python scripts/build_pages.py
-npx wrangler pages deploy dist --project-name=orbit
-```
-
-Optional Pages secrets for email: `RESEND_API_KEY`, `CONTACT_TO`, `CONTACT_FROM`.
-
-## Content
-
-Edit demonstration projects and capabilities in `app/data/portfolio.json`. Rebuild Pages after changes.
-
-## License
-
-Private demonstration project for portfolio showcase.
+Edit content in `app/data/portfolio.json`. Run `npm run build` to refresh `dist/` for Pages.

@@ -5,8 +5,7 @@ __pycache__/
 .env
 .Python
 *.egg-info/
-# dist/ is produced by `npm run build` / scripts/build_pages.py on CI.
-# Keep it untracked; Cloudflare Pages runs the build script.
+# dist/ is produced by `npm run build` on Cloudflare Pages Git builds
 dist/
 build/
 .DS_Store
@@ -20,3 +19,7 @@ node_modules/
 .wrangler/
 .dev.vars
 package-lock.json
+# Root sync artifacts from local `npm run build` (Pages uses dist/)
+/index.html
+/404.html
+/_worker.js
