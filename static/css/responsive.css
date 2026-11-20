@@ -38,5 +38,5 @@
 
 @media (min-width: 721px) {
   .mobile-nav-toggle { display: none !important; }
-  .mobile-nav[hidden] { display: none !important; }
+  .mobile-nav { display: none !important; }
 }

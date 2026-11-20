@@ -180,6 +180,10 @@ a:hover { color: #fff; }
   background: var(--bg-elevated);
   border: 1px solid var(--line);
 }
+/* Same class of bug as terminal: author display must not beat [hidden] */
+.mobile-nav[hidden] {
+  display: none !important;
+}
 .mobile-nav a {
   color: var(--ink);
   text-decoration: none;

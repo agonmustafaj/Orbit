@@ -1,3 +1,5 @@
+import { matchLore, loreHelpLine } from "./terminal-lore.js";
+
 const HELP = `Available commands:
   help          list commands
   about         ORBIT philosophy
@@ -5,9 +7,11 @@ const HELP = `Available commands:
   experiments   list playground experiments
   technologies  stack overview
   contact       contact channels
+  topics        tech-history constellation
   clear         clear the screen
   exit          close terminal
 
+Ask casually, e.g. "first phone" or "what was the internet called"
 Hidden: orbit, matrix, whoami`;
 
 export function initTerminal(data = {}) {
@@ -32,7 +36,8 @@ export function initTerminal(data = {}) {
     root.setAttribute("aria-hidden", "false");
     openBtn?.setAttribute("aria-expanded", "true");
     if (output && !output.dataset.booted) {
-      print("ORBIT terminal online. Type `help` to begin.");
+      print("ORBIT terminal online. Type `help` or ask a tech-history question.");
+      print(loreHelpLine());
       output.dataset.booted = "1";
     }
     input?.focus();
@@ -47,61 +52,73 @@ export function initTerminal(data = {}) {
   };
 
   const run = (raw) => {
-    const cmd = raw.trim().toLowerCase();
+    const trimmed = raw.trim();
+    const cmd = trimmed.toLowerCase();
     print(`› ${raw}`);
+
     switch (cmd) {
       case "help":
         print(HELP);
-        break;
+        return;
       case "about":
         print("ORBIT is a digital universe for ideas, experiments, and craft.\nExplore. Create. Evolve.");
-        break;
+        return;
       case "projects":
         print(
           (data.projects || [])
             .map((p) => `${p.number} — ${p.title} [${p.category}]`)
             .join("\n") || "No projects loaded."
         );
-        break;
+        return;
       case "experiments":
         print(
           (data.experiments || [])
             .map((e) => `${e.number} — ${e.title}`)
             .join("\n") || "No experiments loaded."
         );
-        break;
+        return;
       case "technologies":
         print(
           (data.capabilities || [])
             .map((c) => `${c.name} · ${c.category}`)
             .join("\n")
         );
-        break;
+        return;
       case "contact":
         print(`Email: ${data.email || "hello@orbit.studio"}\nSection: #contact`);
-        break;
+        return;
       case "clear":
         if (output) output.textContent = "";
-        break;
+        return;
       case "exit":
       case "quit":
       case "close":
         close();
-        break;
+        return;
       case "orbit":
         print("◯ ring synchronized · violet core stable · welcome traveler");
-        break;
+        return;
       case "matrix":
         print("There is no spoon — only wireframes and intention.");
-        break;
+        return;
       case "whoami":
         print("guest@orbit — explorer status: curious");
-        break;
+        return;
       case "":
-        break;
+        return;
       default:
-        print(`Command not found: ${cmd}. Try help.`);
+        break;
     }
+
+    const lore = matchLore(trimmed);
+    if (lore) {
+      print(lore);
+      return;
+    }
+
+    print(
+      `Signal unclear: “${trimmed}”.\nTry help, topics, or a history question like “who built the first pc”.`
+    );
   };
 
   openBtn?.addEventListener("click", (e) => {
@@ -111,7 +128,6 @@ export function initTerminal(data = {}) {
     else open();
   });
 
-  // Lucide replaces inner <i> with <svg>; listen on the button and capture clicks on children
   closeBtn?.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -138,7 +154,6 @@ export function initTerminal(data = {}) {
     }
   });
 
-  // Ensure closed on init (display:grid must not override [hidden])
   if (root) {
     root.setAttribute("hidden", "");
     root.setAttribute("aria-hidden", "true");
