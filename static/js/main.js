@@ -79,18 +79,36 @@ async function boot() {
   let globe = null;
 
   const cssGlobe = document.getElementById("globe-fallback");
-  globe = createGlobe(canvas, {
-    onReady: () => loader.set(55),
-    onFallback: () => {
-      if (fallback) fallback.hidden = false;
-      if (cssGlobe) {
-        cssGlobe.hidden = false;
-        cssGlobe.setAttribute("aria-hidden", "false");
-      }
-      if (canvas) canvas.style.opacity = "0";
-      loader.set(55);
-    },
-  });
+  const showGlobeFallback = (reason) => {
+    console.warn("[ORBIT] WebGL globe fallback:", reason || "unknown");
+    if (fallback) fallback.hidden = false;
+    if (cssGlobe) {
+      cssGlobe.hidden = false;
+      cssGlobe.setAttribute("aria-hidden", "false");
+    }
+    if (canvas) canvas.style.opacity = "0";
+    loader.set(55);
+  };
+
+  try {
+    globe = createGlobe(canvas, {
+      onReady: () => {
+        if (fallback) fallback.hidden = true;
+        if (cssGlobe) {
+          cssGlobe.hidden = true;
+          cssGlobe.setAttribute("aria-hidden", "true");
+        }
+        if (canvas) canvas.style.opacity = "";
+        loader.set(55);
+      },
+      onFallback: showGlobeFallback,
+    });
+    if (!globe) {
+      // createGlobe already invoked onFallback when it returns null
+    }
+  } catch (err) {
+    showGlobeFallback(String(err?.message || err));
+  }
 
   loader.set(70);
   const nav = initNavigation({

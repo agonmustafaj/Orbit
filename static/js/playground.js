@@ -1,3 +1,5 @@
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js";
+
 const instances = new Map();
 
 function clearStage(stage) {
@@ -195,13 +197,25 @@ function createGravitySystem(host) {
 }
 
 function createObjectExplorer(host) {
-  if (!window.THREE) {
+  if (!THREE?.WebGLRenderer) {
     host.innerHTML = `<p class="mono stage-placeholder">WebGL unavailable</p>`;
     return { reset() {}, dispose() {} };
   }
   const canvas = document.createElement("canvas");
   host.appendChild(canvas);
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: window.devicePixelRatio < 2,
+      alpha: true,
+      powerPreference: "default",
+      failIfMajorPerformanceCaveat: false,
+    });
+  } catch {
+    host.innerHTML = `<p class="mono stage-placeholder">WebGL unavailable</p>`;
+    return { reset() {}, dispose() {} };
+  }
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 50);
   camera.position.z = 4;
