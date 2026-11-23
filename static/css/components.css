@@ -473,8 +473,16 @@
   border-bottom: 1px solid var(--line);
 }
 .experiment-dialog__stage {
+  position: relative;
   min-height: min(70vh, 520px);
+  height: min(70vh, 520px);
   background: #050308;
+  overflow: hidden;
+}
+.experiment-dialog__stage canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
 }
 
 /* Terminal */

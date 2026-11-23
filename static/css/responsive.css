@@ -91,6 +91,7 @@
   .experiment-actions .btn { flex: 1 1 auto; }
   .experiment-dialog__stage {
     min-height: min(55dvh, 420px);
+    height: min(55dvh, 420px);
   }
 
   .project-dialog,
