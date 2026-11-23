@@ -1,4 +1,4 @@
-/* CSS globe fallback when WebGL is unavailable */
+/* CSS particle-Earth fallback when WebGL is unavailable */
 .globe-fallback {
   position: absolute;
   inset: 0;
@@ -12,51 +12,60 @@
   position: relative;
   width: min(52vw, 420px);
   aspect-ratio: 1;
+  filter: drop-shadow(0 0 28px rgba(99, 102, 241, 0.35));
 }
 .globe-fallback__sphere {
   position: absolute;
-  inset: 12%;
+  inset: 14%;
   border-radius: 50%;
-  border: 1px solid rgba(168, 85, 247, 0.45);
+  border: 0;
   box-shadow:
-    inset 0 0 40px rgba(168, 85, 247, 0.25),
-    0 0 60px rgba(88, 28, 135, 0.35);
+    inset 0 0 50px rgba(99, 102, 241, 0.35),
+    0 0 80px rgba(88, 28, 135, 0.4);
   background:
-    repeating-linear-gradient(
-      0deg,
-      transparent 0 14px,
-      rgba(196, 181, 253, 0.12) 14px 15px
+    radial-gradient(circle at 32% 28%, rgba(233, 213, 255, 0.18), transparent 42%),
+    radial-gradient(circle at 58% 62%, rgba(244, 114, 182, 0.2), transparent 28%),
+    radial-gradient(circle at 70% 40%, rgba(129, 140, 248, 0.25), transparent 35%),
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      rgba(139, 156, 255, 0.35) 0 1px,
+      transparent 1px 7px
     ),
-    repeating-linear-gradient(
-      90deg,
-      transparent 0 18px,
-      rgba(168, 85, 247, 0.1) 18px 19px
-    ),
-    radial-gradient(circle at 35% 30%, rgba(233, 213, 255, 0.2), transparent 45%),
-    #12081c;
-  animation: orbit-spin 28s linear infinite;
+    radial-gradient(circle at 50% 50%, #1e1b4b 0%, #050308 72%);
+  animation: orbit-spin 36s linear infinite;
+}
+.globe-fallback__sphere::after {
+  content: "";
+  position: absolute;
+  inset: -2%;
+  border-radius: 50%;
+  border: 1px solid rgba(196, 181, 253, 0.25);
+  box-shadow: 0 0 24px rgba(168, 85, 247, 0.25);
+  pointer-events: none;
 }
 .globe-fallback__ring {
   position: absolute;
-  inset: 8%;
+  inset: 6%;
   border-radius: 50%;
   border: 2px solid transparent;
   border-top-color: #e9d5ff;
-  border-bottom-color: rgba(168, 85, 247, 0.55);
+  border-bottom-color: rgba(129, 140, 248, 0.55);
   transform: rotateX(66deg) rotateZ(-18deg);
   filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.8));
-  animation: orbit-ring 10s linear infinite;
+  animation: orbit-ring 12s linear infinite;
 }
 .globe-fallback__eye {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 18%;
+  left: 58%;
+  top: 42%;
+  width: 7%;
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(circle at 40% 35%, #f5f3ff, #a855f7 55%, #2e1065 100%);
-  box-shadow: 0 0 24px #a855f7;
+  background: radial-gradient(circle at 40% 35%, #fce7f3, #f472b6 55%, #86198f 100%);
+  box-shadow:
+    0 0 14px #f472b6,
+    0 0 28px rgba(232, 121, 249, 0.6);
 }
 @keyframes orbit-spin { to { transform: rotate(360deg); } }
 @keyframes orbit-ring { to { transform: rotateX(66deg) rotateZ(342deg); } }

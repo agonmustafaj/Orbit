@@ -1,6 +1,6 @@
 # ORBIT
 
-Immersive digital experience — Three.js globe, playground, FastAPI (local) / Cloudflare Pages (production).
+Immersive digital experience — Three.js particle Earth hero, playground, FastAPI (local) / Cloudflare Pages (production).
 
 **Production:** https://orbit.pages.dev/ (Git-connected Pages project `orbit`)
 
