@@ -27,9 +27,18 @@ function createParticleField(host) {
   const count = window.innerWidth < 720 ? 45 : 70;
   let particles = [];
 
-  const reset = () => {
+  const resize = () => {
     const { w, h, dpr } = resizeCanvas(canvas, host);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    for (const p of particles) {
+      p.x = Math.min(w, Math.max(0, p.x));
+      p.y = Math.min(h, Math.max(0, p.y));
+    }
+    return { w, h };
+  };
+
+  const reset = () => {
+    const { w, h } = resize();
     particles = Array.from({ length: count }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
@@ -88,11 +97,12 @@ function createParticleField(host) {
 
   reset();
   tick();
-  const onResize = () => reset();
+  const onResize = () => resize();
   window.addEventListener("resize", onResize);
 
   return {
     reset,
+    resize,
     dispose() {
       running = false;
       cancelAnimationFrame(raf);
@@ -123,8 +133,12 @@ function createGravitySystem(host) {
     });
   };
 
-  const reset = () => {
+  const resize = () => {
     resizeCanvas(canvas, host);
+  };
+
+  const reset = () => {
+    resize();
     bodies = [];
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
@@ -185,11 +199,16 @@ function createGravitySystem(host) {
 
   reset();
   tick();
+  const onResize = () => resize();
+  window.addEventListener("resize", onResize);
+
   return {
     reset,
+    resize,
     dispose() {
       running = false;
       cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onResize);
       canvas.removeEventListener("click", onClick);
       controls.remove();
     },
@@ -199,7 +218,7 @@ function createGravitySystem(host) {
 function createObjectExplorer(host) {
   if (!THREE?.WebGLRenderer) {
     host.innerHTML = `<p class="mono stage-placeholder">WebGL unavailable</p>`;
-    return { reset() {}, dispose() {} };
+    return { reset() {}, resize() {}, dispose() {} };
   }
   const canvas = document.createElement("canvas");
   host.appendChild(canvas);
@@ -214,7 +233,7 @@ function createObjectExplorer(host) {
     });
   } catch {
     host.innerHTML = `<p class="mono stage-placeholder">WebGL unavailable</p>`;
-    return { reset() {}, dispose() {} };
+    return { reset() {}, resize() {}, dispose() {} };
   }
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 50);
@@ -299,6 +318,8 @@ function createObjectExplorer(host) {
     camera.updateProjectionMatrix();
   };
   setSize();
+  const onResize = () => setSize();
+  window.addEventListener("resize", onResize);
 
   const tick = () => {
     if (!running) return;
@@ -321,9 +342,11 @@ function createObjectExplorer(host) {
       build();
       setSize();
     },
+    resize: setSize,
     dispose() {
       running = false;
       cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onResize);
       canvas.removeEventListener("pointerdown", onDown);
       window.removeEventListener("pointerup", onUp);
       canvas.removeEventListener("pointermove", onMove);
@@ -340,11 +363,25 @@ const factories = {
   "object-explorer": createObjectExplorer,
 };
 
+function experimentTitle(id) {
+  const list = window.__ORBIT__?.experiments || [];
+  const match = list.find((exp) => exp.id === id);
+  return match?.title || id;
+}
+
+function afterLayout(fn) {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(fn);
+  });
+}
+
 export function initPlayground() {
   const dialog = document.getElementById("experiment-dialog");
   const dialogStage = document.getElementById("experiment-dialog-stage");
   const dialogTitle = document.getElementById("experiment-dialog-title");
   const dialogClose = document.getElementById("experiment-dialog-close");
+  let activeDialogId = null;
+  let stageObserver = null;
 
   const launch = (id, host) => {
     const existing = instances.get(id);
@@ -354,6 +391,60 @@ export function initPlayground() {
     if (!factory) return;
     const inst = factory(host);
     instances.set(id, inst);
+  };
+
+  const disposeDialogInstance = () => {
+    if (!activeDialogId) return;
+    const key = `${activeDialogId}:dialog`;
+    instances.get(key)?.dispose?.();
+    instances.delete(key);
+    activeDialogId = null;
+  };
+
+  const stopStageObserver = () => {
+    stageObserver?.disconnect?.();
+    stageObserver = null;
+  };
+
+  const mountExpanded = (id) => {
+    if (!dialogStage || !factories[id]) return;
+    disposeDialogInstance();
+    clearStage(dialogStage);
+    const inst = factories[id](dialogStage);
+    if (!inst) return;
+    activeDialogId = id;
+    instances.set(`${id}:dialog`, inst);
+    // Ensure buffer matches the now-visible dialog stage (closed dialogs are 0×0).
+    inst.resize?.();
+    stopStageObserver();
+    if (typeof ResizeObserver !== "undefined") {
+      stageObserver = new ResizeObserver(() => {
+        instances.get(`${id}:dialog`)?.resize?.();
+      });
+      stageObserver.observe(dialogStage);
+    }
+  };
+
+  const openExpanded = (id) => {
+    if (!dialog || !dialogStage) return;
+    if (dialogTitle) dialogTitle.textContent = experimentTitle(id);
+    const wasOpen = dialog.open;
+    if (!wasOpen) {
+      try {
+        dialog.showModal();
+      } catch {
+        dialog.setAttribute("open", "");
+      }
+    }
+    // Wait for dialog layout so host.clientWidth/Height are real.
+    afterLayout(() => mountExpanded(id));
+  };
+
+  const closeExpanded = () => {
+    stopStageObserver();
+    disposeDialogInstance();
+    if (dialogStage) clearStage(dialogStage);
+    if (dialog?.open) dialog.close();
   };
 
   document.querySelectorAll("[data-launch-experiment]").forEach((btn) => {
@@ -374,19 +465,18 @@ export function initPlayground() {
   document.querySelectorAll("[data-expand-experiment]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const id = btn.getAttribute("data-expand-experiment");
-      if (!dialog || !dialogStage) return;
-      dialogTitle.textContent = id;
-      clearStage(dialogStage);
-      const existing = instances.get(`${id}:dialog`);
-      existing?.dispose?.();
-      const inst = factories[id]?.(dialogStage);
-      if (inst) instances.set(`${id}:dialog`, inst);
-      dialog.showModal();
+      if (id) openExpanded(id);
     });
   });
 
   dialogClose?.addEventListener("click", () => {
-    instances.get(dialogTitle?.textContent + ":dialog")?.dispose?.();
-    dialog.close();
+    closeExpanded();
+  });
+
+  // Escape / backdrop dismiss must dispose the dialog instance too.
+  dialog?.addEventListener("close", () => {
+    stopStageObserver();
+    disposeDialogInstance();
+    if (dialogStage) clearStage(dialogStage);
   });
 }
