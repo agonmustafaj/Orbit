@@ -520,8 +520,7 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
     setSectionInfluence(sectionId) {
       const map = {
         index: 0,
-        work: 0.2,
-        playground: 0.35,
+        playground: 0.25,
         about: 0.45,
         capabilities: 0.55,
         contact: 0.7,

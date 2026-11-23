@@ -1,7 +1,6 @@
 import { createGlobe } from "./globe.js";
 import { initNavigation } from "./navigation.js";
 import { initAnimations, runLoader } from "./animations.js";
-import { initProjects } from "./projects.js";
 import { initPlayground } from "./playground.js";
 import { initTerminal } from "./terminal.js";
 import { initCapabilities } from "./capabilities.js";
@@ -70,7 +69,6 @@ async function boot() {
   const nav = initNavigation({
     onSectionChange: (id) => globe?.setSectionInfluence?.(id),
   });
-  initProjects(data.projects || []);
   initPlayground();
   initTerminal({
     projects: data.projects,

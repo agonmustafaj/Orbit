@@ -3,7 +3,7 @@ import { matchLore, loreHelpLine } from "./terminal-lore.js";
 const HELP = `Available commands:
   help          list commands
   about         ORBIT philosophy
-  projects      list demonstration projects
+  projects      list work projects (when present)
   experiments   list playground experiments
   technologies  stack overview
   contact       contact channels
