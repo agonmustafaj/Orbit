@@ -285,27 +285,130 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
     scene.add(fill);
   }
 
+  // Cursor / drag state — hover parallax + drag rotate with light inertia.
+  const finePointer = window.matchMedia("(pointer: fine)").matches;
   const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
-  const onPointer = (e) => {
-    // Ignore synthetic mouse after touch; only tilt from primary pointer over hero.
-    if (e.pointerType === "touch" && e.target !== canvas) return;
+  const drag = {
+    active: false,
+    pointerId: null,
+    px: 0,
+    py: 0,
+    moved: false,
+    // Accumulated user rotation (radians).
+    x: 0,
+    y: 0,
+    vx: 0,
+    vy: 0,
+  };
+  // Stronger parallax on desktop; softer on touch-first devices.
+  const parallaxAmp = finePointer ? { x: 0.55, y: 0.32 } : { x: 0.28, y: 0.16 };
+  const camParallax = finePointer ? 0.32 : 0.12;
+  const rootParallax = finePointer ? 0.1 : 0.04;
+  const dragSens = finePointer ? 0.0055 : 0.007;
+  const lerpHover = finePointer ? 0.08 : 0.12;
+
+  const hero = canvas.parentElement;
+  const normFromEvent = (e) => {
     const rect = canvas.getBoundingClientRect();
-    if (!rect.width || !rect.height) return;
-    // On touch, ignore moves outside the hero so scrolling isn't fighting the globe.
+    if (!rect.width || !rect.height) return null;
+    return {
+      x: ((e.clientX - rect.left) / rect.width) * 2 - 1,
+      y: -(((e.clientY - rect.top) / rect.height) * 2 - 1),
+      rect,
+    };
+  };
+
+  const isUiTarget = (target) => {
+    if (!(target instanceof Element)) return false;
+    return Boolean(
+      target.closest(
+        "a, button, input, textarea, select, label, [role='button'], .hero-copy, .meta-list, .site-chrome, .terminal, .scroll-cue"
+      )
+    );
+  };
+
+  const onPointerMove = (e) => {
+    if (drag.active && e.pointerId === drag.pointerId) {
+      const dx = e.clientX - drag.px;
+      const dy = e.clientY - drag.py;
+      if (!drag.moved && dx * dx + dy * dy > 9) drag.moved = true;
+      if (drag.moved) {
+        // Touch: once we commit to a drag, keep the page from scrolling.
+        if (e.pointerType === "touch") e.preventDefault();
+        drag.y += dx * dragSens;
+        drag.x += dy * dragSens;
+        drag.vx = dx * dragSens;
+        drag.vy = dy * dragSens;
+        drag.px = e.clientX;
+        drag.py = e.clientY;
+        // Keep hover target under finger/cursor while dragging.
+        const n = normFromEvent(e);
+        if (n) {
+          pointer.tx = n.x;
+          pointer.ty = n.y;
+        }
+      }
+      return;
+    }
+
+    // Hover parallax — desktop always; touch only while over the hero canvas.
+    if (e.pointerType === "touch" && e.target !== canvas) return;
+    const n = normFromEvent(e);
+    if (!n) return;
     if (e.pointerType === "touch") {
       if (
-        e.clientX < rect.left ||
-        e.clientX > rect.right ||
-        e.clientY < rect.top ||
-        e.clientY > rect.bottom
+        e.clientX < n.rect.left ||
+        e.clientX > n.rect.right ||
+        e.clientY < n.rect.top ||
+        e.clientY > n.rect.bottom
       ) {
         return;
       }
     }
-    pointer.tx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    pointer.ty = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
+    // Fine pointers track across the viewport relative to the hero.
+    if (finePointer || e.target === canvas || (hero && hero.contains(e.target))) {
+      pointer.tx = THREE.MathUtils.clamp(n.x, -1.2, 1.2);
+      pointer.ty = THREE.MathUtils.clamp(n.y, -1.2, 1.2);
+    }
   };
-  window.addEventListener("pointermove", onPointer, { passive: true });
+
+  const onPointerDown = (e) => {
+    if (drag.active) return;
+    if (e.button != null && e.button !== 0) return;
+    if (isUiTarget(e.target)) return;
+    drag.active = true;
+    drag.pointerId = e.pointerId;
+    drag.px = e.clientX;
+    drag.py = e.clientY;
+    drag.moved = false;
+    drag.vx = 0;
+    drag.vy = 0;
+    try {
+      canvas.setPointerCapture?.(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+    canvas.classList.add("is-dragging");
+  };
+
+  const endDrag = (e) => {
+    if (!drag.active) return;
+    if (e?.pointerId != null && drag.pointerId != null && e.pointerId !== drag.pointerId) {
+      return;
+    }
+    drag.active = false;
+    drag.pointerId = null;
+    canvas.classList.remove("is-dragging");
+    // Soften leftover velocity so inertia feels controlled.
+    drag.vx = THREE.MathUtils.clamp(drag.vx, -0.08, 0.08);
+    drag.vy = THREE.MathUtils.clamp(drag.vy, -0.08, 0.08);
+  };
+
+  window.addEventListener("pointermove", onPointerMove, { passive: false });
+  // Hero grid uses pointer-events:none, so grabs on the planet land on the canvas.
+  canvas.addEventListener("pointerdown", onPointerDown, { passive: true });
+  window.addEventListener("pointerup", endDrag, { passive: true });
+  window.addEventListener("pointercancel", endDrag, { passive: true });
 
   let scrollT = 0;
   let scrollQueued = false;
@@ -339,6 +442,7 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
   let pageVisible = document.visibilityState !== "hidden";
   const clock = new THREE.Clock();
   let lastFrame = 0;
+  let spinY = 0;
   // ~30fps on mid/low phones; full 60 on desktop.
   const minFrameMs = q.id === "high" ? 1000 / 60 : 1000 / 30;
 
@@ -347,23 +451,47 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
     raf = requestAnimationFrame(tick);
     if (!visible || !pageVisible) return;
     if (now - lastFrame < minFrameMs) return;
+    const dt = Math.min(0.05, (now - lastFrame) / 1000 || 0.016);
     lastFrame = now;
 
     const t = clock.getElapsedTime();
-    pointer.x += (pointer.tx - pointer.x) * 0.05;
-    pointer.y += (pointer.ty - pointer.y) * 0.05;
+    pointer.x += (pointer.tx - pointer.x) * lerpHover;
+    pointer.y += (pointer.ty - pointer.y) * lerpHover;
 
     if (!REDUCED) {
-      globeGroup.rotation.y = t * 0.12 + pointer.x * 0.35;
-      globeGroup.rotation.x = pointer.y * 0.2;
-      ringGroup.rotation.z += 0.003 + pointer.x * 0.001;
-      ringGroup.rotation.y = Math.sin(t * 0.2) * 0.08;
-      particles.rotation.y = t * 0.04;
+      // Inertia after release — decay toward rest.
+      if (!drag.active) {
+        drag.y += drag.vx;
+        drag.x += drag.vy;
+        drag.vx *= 0.94;
+        drag.vy *= 0.94;
+        if (Math.abs(drag.vx) < 0.00005) drag.vx = 0;
+        if (Math.abs(drag.vy) < 0.00005) drag.vy = 0;
+        // Auto-spin only while the user isn't grabbing the planet.
+        spinY += dt * 0.12;
+      }
+
+      globeGroup.rotation.y = spinY + drag.y + pointer.x * parallaxAmp.x;
+      globeGroup.rotation.x = THREE.MathUtils.clamp(
+        drag.x + pointer.y * parallaxAmp.y,
+        -1.1,
+        1.1
+      );
+
+      ringGroup.rotation.z += 0.003 + pointer.x * 0.0015 + (drag.active ? drag.vx * 0.15 : 0);
+      ringGroup.rotation.y = Math.sin(t * 0.2) * 0.08 + pointer.x * 0.06;
+      particles.rotation.y = t * 0.04 + drag.y * 0.15;
       eye.rotation.y = -globeGroup.rotation.y * 0.25;
-      camera.position.z = 5.2 - scrollT * 1.1;
-      camera.position.y = 0.15 + scrollT * 0.35;
-      camera.lookAt(0, 0, 0);
-      root.position.y = Math.sin(t * 0.4) * 0.04;
+      eye.rotation.x = -globeGroup.rotation.x * 0.2;
+
+      // Camera + root parallax for depth.
+      camera.position.x = pointer.x * camParallax + drag.y * 0.05;
+      camera.position.y = 0.15 + pointer.y * (camParallax * 0.55) + scrollT * 0.35;
+      camera.position.z = 5.2 - scrollT * 1.1 - Math.abs(pointer.x) * 0.08;
+      camera.lookAt(pointer.x * 0.15, pointer.y * 0.08, 0);
+
+      root.position.x = pointer.x * rootParallax;
+      root.position.y = Math.sin(t * 0.4) * 0.04 + pointer.y * rootParallax * 0.6;
     }
 
     renderer.render(scene, camera);
@@ -371,7 +499,6 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
   raf = requestAnimationFrame(tick);
   onReady?.();
 
-  const hero = canvas.parentElement;
   const io =
     hero &&
     new IntersectionObserver(
@@ -404,7 +531,10 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
     dispose() {
       running = false;
       cancelAnimationFrame(raf);
-      window.removeEventListener("pointermove", onPointer);
+      window.removeEventListener("pointermove", onPointerMove);
+      canvas.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointerup", endDrag);
+      window.removeEventListener("pointercancel", endDrag);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", setSize);
       window.removeEventListener("orientationchange", setSize);
