@@ -112,6 +112,7 @@ export function initTerminal(data = {}) {
         print(
           `Operator: ${data.creator || "Agon Mustafaj"}\n` +
             `Email: ${data.email || "agonmustafaj01@gmail.com"}\n` +
+            `Site: ${data.creatorUrl || "https://agonmustafaj.com/"}\n` +
             `Section: #contact`
         );
         return;
@@ -133,6 +134,7 @@ export function initTerminal(data = {}) {
         print(
           `${data.creator || "Agon Mustafaj"}\n` +
             `${data.email || "agonmustafaj01@gmail.com"}\n` +
+            `${data.creatorUrl || "https://agonmustafaj.com/"}\n` +
             `Role: ORBIT operator`
         );
         return;

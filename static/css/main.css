@@ -206,13 +206,27 @@ a:hover { color: #fff; }
   font-size: 0.72rem;
 }
 .about-credit a { color: var(--violet-soft); }
-.about-credit strong { color: var(--ink); font-weight: 500; }
+
+.creator-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--violet-soft) 55%, transparent);
+  text-underline-offset: 0.18em;
+}
+.creator-link:hover,
+.creator-link:focus-visible {
+  color: var(--violet-soft);
+}
 
 .contact-person {
   margin: 0 0 0.5rem;
   font-size: 1.15rem;
   font-weight: 500;
   letter-spacing: -0.02em;
+}
+.contact-person .creator-link {
+  color: var(--ink);
+  text-decoration-color: color-mix(in srgb, var(--violet-soft) 45%, transparent);
 }
 
 .site-footer {

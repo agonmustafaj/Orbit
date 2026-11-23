@@ -340,7 +340,7 @@
 .contact-title span { display: block; }
 .contact-grid {
   display: grid;
-  grid-template-columns: 0.85fr 1.15fr;
+  grid-template-columns: minmax(0, 28rem);
   gap: clamp(1.5rem, 4vw, 3rem);
   margin-top: 2rem;
 }
@@ -350,7 +350,7 @@
   justify-content: space-between;
   gap: 1rem;
   width: 100%;
-  margin: 0.75rem 0 1.25rem;
+  margin: 0.75rem 0 1rem;
   padding: 0.9rem 1rem;
   border: 1px solid var(--line);
   background: rgba(12, 7, 18, 0.55);
@@ -358,43 +358,23 @@
   font-size: 1.05rem;
 }
 .email-copy span { font-size: 0.65rem; color: var(--violet-soft); }
+.contact-paths {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin: 0 0 1.25rem;
+  color: var(--ink-muted);
+  font-size: 0.78rem;
+}
+.contact-paths a { color: var(--violet-soft); }
 .social-list {
   list-style: none;
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
   padding: 0;
   margin: 0 0 1.5rem;
 }
-.contact-form {
-  display: grid;
-  gap: 0.85rem;
-  border: 1px solid var(--line);
-  padding: 1.25rem;
-  background: var(--bg-panel);
-}
-.field { display: grid; gap: 0.35rem; }
-.field label { font-size: 0.78rem; color: var(--ink-muted); }
-.field input,
-.field textarea {
-  width: 100%;
-  border: 1px solid var(--line);
-  background: rgba(5, 3, 8, 0.75);
-  padding: 0.7rem 0.8rem;
-}
-.field input:focus,
-.field textarea:focus {
-  border-color: var(--line-strong);
-  outline: none;
-}
-.hp {
-  position: absolute;
-  left: -9999px;
-  height: 0;
-  overflow: hidden;
-}
-.form-status { min-height: 1.2rem; margin: 0; font-size: 0.72rem; }
-.form-status.is-error { color: var(--danger); }
-.form-status.is-ok { color: var(--ok); }
 
 /* Orbital nav */
 .orbital-nav {

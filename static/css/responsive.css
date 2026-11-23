@@ -117,16 +117,9 @@
     font-size: 16px; /* prevent iOS input zoom */
   }
 
-  .contact-form,
   .email-copy {
     width: 100%;
   }
-  .field input,
-  .field textarea {
-    font-size: 16px; /* prevent iOS input zoom */
-    min-height: 2.75rem;
-  }
-  .field textarea { min-height: 8rem; }
   .btn,
   .email-copy,
   .capability-chip,

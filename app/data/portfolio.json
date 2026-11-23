@@ -4,10 +4,12 @@
     "tagline": "Explore beyond the digital.",
     "descriptor": "DIGITAL EXPERIENCE / 001",
     "creator": "Agon Mustafaj",
+    "creatorUrl": "https://agonmustafaj.com/",
     "email": "agonmustafaj01@gmail.com",
     "availability": "Open for collaboration",
     "social": [
       { "label": "GitHub", "url": "https://github.com/agonmustafaj/Orbit" },
+      { "label": "Portfolio", "url": "https://agonmustafaj.com/" },
       { "label": "X", "url": "https://x.com/" },
       { "label": "LinkedIn", "url": "https://www.linkedin.com/" }
     ]
@@ -116,7 +118,7 @@
       "name": "HTML",
       "category": "FRONTEND DEVELOPMENT",
       "description": "Semantic structure for accessibility, SEO, and resilient content.",
-      "usedIn": ["Index content", "Project case studies", "Contact form"]
+      "usedIn": ["Index content", "Project case studies", "Contact section"]
     },
     {
       "id": "css",
@@ -151,20 +153,20 @@
       "name": "Python",
       "category": "BACKEND DEVELOPMENT",
       "description": "Readable server logic, configuration, and validation.",
-      "usedIn": ["FastAPI app", "Contact processing", "Content loading"]
+      "usedIn": ["FastAPI app", "Static site build", "Content loading"]
     },
     {
       "id": "fastapi",
       "name": "FastAPI",
       "category": "BACKEND DEVELOPMENT",
       "description": "Typed API routes with automatic validation via Pydantic.",
-      "usedIn": ["/api/projects", "/api/contact", "/api/health"]
+      "usedIn": ["/api/projects", "/api/site", "/api/health"]
     },
     {
       "id": "rest",
       "name": "REST APIs",
       "category": "BACKEND DEVELOPMENT",
-      "description": "Predictable resource endpoints for content and contact flows.",
+      "description": "Predictable resource endpoints for project and site content.",
       "usedIn": ["Project data API", "Health checks"]
     },
     {

@@ -9,6 +9,3 @@
 name = "orbit"
 compatibility_date = "2025-11-01"
 pages_build_output_dir = "./dist"
-
-# Optional contact secrets via Cloudflare dashboard only:
-#   RESEND_API_KEY, CONTACT_TO, CONTACT_FROM

@@ -34,18 +34,10 @@ class Settings:
         self.contact_email: str = os.getenv(
             "CONTACT_EMAIL", "agonmustafaj01@gmail.com"
         )
-        self.contact_to: str = os.getenv("CONTACT_TO", self.contact_email)
-        self.contact_from: str = os.getenv("CONTACT_FROM", "")
-        self.resend_api_key: str = os.getenv("RESEND_API_KEY", "")
+        self.creator_url: str = os.getenv(
+            "CREATOR_URL", "https://agonmustafaj.com/"
+        ).rstrip("/") + "/"
         self.allowed_origins: list[str] = _list(os.getenv("ALLOWED_ORIGINS"))
-        self.contact_rate_limit: int = int(os.getenv("CONTACT_RATE_LIMIT", "8"))
-        self.contact_rate_window_seconds: int = int(
-            os.getenv("CONTACT_RATE_WINDOW_SECONDS", "60")
-        )
-
-    @property
-    def email_delivery_configured(self) -> bool:
-        return bool(self.resend_api_key and self.contact_from and self.contact_to)
 
 
 @lru_cache
