@@ -8,51 +8,7 @@ import { initCapabilities } from "./capabilities.js";
 
 const data = window.__ORBIT__ || {};
 
-function initContactForm() {
-  const form = document.getElementById("contact-form");
-  const status = document.getElementById("form-status");
-  const submit = document.getElementById("contact-submit");
-  if (!form) return;
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    status.className = "form-status mono";
-    status.textContent = "";
-
-    const payload = {
-      name: form.name.value.trim(),
-      email: form.email.value.trim(),
-      subject: form.subject.value.trim(),
-      message: form.message.value.trim(),
-      website: form.website.value.trim(),
-    };
-
-    if (payload.name.length < 2 || payload.subject.length < 3 || payload.message.length < 10) {
-      status.classList.add("is-error");
-      status.textContent = "Please complete all fields with enough detail.";
-      return;
-    }
-
-    submit.disabled = true;
-    status.textContent = "Sending…";
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const json = await res.json();
-      status.classList.add(json.ok ? "is-ok" : "is-error");
-      status.textContent = json.message || (json.ok ? "Message received." : "Something went wrong.");
-      if (json.ok) form.reset();
-    } catch {
-      status.classList.add("is-error");
-      status.textContent = "Network error. Please try again or email us directly.";
-    } finally {
-      submit.disabled = false;
-    }
-  });
-
+function initContact() {
   const copyBtn = document.getElementById("copy-email");
   const feedback = document.getElementById("copy-feedback");
   copyBtn?.addEventListener("click", async () => {
@@ -122,9 +78,10 @@ async function boot() {
     capabilities: data.capabilities,
     email: data.email,
     creator: data.creator,
+    creatorUrl: data.creatorUrl,
   });
   initCapabilities(data.capabilities || []);
-  initContactForm();
+  initContact();
   initAnimations();
   loader.set(92);
 

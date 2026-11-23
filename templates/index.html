@@ -32,11 +32,13 @@
     "author": {
       "@type": "Person",
       "name": "{{ site.get('creator', contact_name) }}",
+      "url": "{{ creator_url }}",
       "email": "{{ contact_email }}"
     },
     "creator": {
       "@type": "Person",
       "name": "{{ site.get('creator', contact_name) }}",
+      "url": "{{ creator_url }}",
       "email": "{{ contact_email }}"
     },
     "potentialAction": {
@@ -222,7 +224,8 @@
           <li>EXPERIENCE</li>
         </ol>
         <p class="about-credit mono">
-          Created by <strong>{{ site.get("creator", contact_name) }}</strong>
+          Created by
+          <a class="creator-link" href="{{ creator_url }}" rel="noopener noreferrer" target="_blank">{{ site.get("creator", contact_name) }}</a>
           ·
           <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>
         </p>
@@ -272,11 +275,18 @@
         <div class="contact-grid">
           <div class="contact-meta">
             <p class="mono">DIRECT</p>
-            <p class="contact-person">{{ site.get("creator", contact_name) }}</p>
+            <p class="contact-person">
+              <a class="creator-link" href="{{ creator_url }}" rel="noopener noreferrer" target="_blank">{{ site.get("creator", contact_name) }}</a>
+            </p>
             <button type="button" class="email-copy" id="copy-email" data-email="{{ contact_email }}">
               {{ contact_email }}
               <span class="mono" id="copy-feedback">Copy</span>
             </button>
+            <p class="contact-paths mono">
+              <a href="mailto:{{ contact_email }}">Email</a>
+              <span aria-hidden="true">·</span>
+              <a href="{{ creator_url }}" rel="noopener noreferrer" target="_blank">Personal site</a>
+            </p>
             <ul class="social-list">
               {% for link in site.get("social", []) %}
               <li><a href="{{ link.url }}" rel="noopener noreferrer" target="_blank">{{ link.label }}</a></li>
@@ -284,30 +294,6 @@
             </ul>
             <a class="text-link" href="#index" data-nav="index">← Back to index</a>
           </div>
-          <form id="contact-form" class="contact-form" novalidate>
-            <div class="field">
-              <label for="name">Name</label>
-              <input id="name" name="name" type="text" autocomplete="name" required minlength="2" maxlength="80" />
-            </div>
-            <div class="field">
-              <label for="email">Email</label>
-              <input id="email" name="email" type="email" autocomplete="email" required />
-            </div>
-            <div class="field">
-              <label for="subject">Subject</label>
-              <input id="subject" name="subject" type="text" required minlength="3" maxlength="120" />
-            </div>
-            <div class="field">
-              <label for="message">Message</label>
-              <textarea id="message" name="message" rows="5" required minlength="10" maxlength="4000"></textarea>
-            </div>
-            <div class="hp" aria-hidden="true">
-              <label for="website">Website</label>
-              <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
-            </div>
-            <p class="form-status mono" id="form-status" role="status" aria-live="polite"></p>
-            <button type="submit" class="btn" id="contact-submit">Send message</button>
-          </form>
         </div>
       </div>
     </section>
@@ -317,7 +303,7 @@
     <div class="site-footer__inner">
       <p class="mono">ORBIT · {{ site.get("descriptor", "DIGITAL EXPERIENCE / 001") }}</p>
       <p>
-        <span>{{ site.get("creator", contact_name) }}</span>
+        <a class="creator-link" href="{{ creator_url }}" rel="noopener noreferrer" target="_blank">{{ site.get("creator", contact_name) }}</a>
         ·
         <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>
       </p>
@@ -371,6 +357,7 @@
       siteUrl: {{ site_url | tojson }},
       email: {{ contact_email | tojson }},
       creator: {{ site.get("creator", contact_name) | tojson }},
+      creatorUrl: {{ creator_url | tojson }},
       projects: {{ projects | tojson }},
       capabilities: {{ capabilities | tojson }},
       experiments: {{ experiments | tojson }}

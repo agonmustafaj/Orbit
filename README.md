@@ -24,7 +24,7 @@ Standalone project — not the personal portfolio.
 | Build command | `npm run build` |
 | Build output directory | `dist` |
 
-Optional contact secrets in the **Cloudflare** dashboard only: `RESEND_API_KEY`, `CONTACT_TO`, `CONTACT_FROM`.
+Contact is mailto / personal site only — no form delivery secrets required.
 
 ### Optional local one-shot
 

@@ -11,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from app.config import get_settings
-from app.routes import contact, projects
+from app.routes import projects
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
@@ -28,13 +28,12 @@ if settings.allowed_origins:
         CORSMiddleware,
         allow_origins=settings.allowed_origins,
         allow_credentials=False,
-        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_methods=["GET", "OPTIONS"],
         allow_headers=["*"],
     )
 
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 app.include_router(projects.router)
-app.include_router(contact.router)
 
 
 @app.middleware("http")
@@ -53,24 +52,25 @@ async def health() -> dict:
         "ok": True,
         "service": "orbit",
         "env": settings.app_env,
-        "emailDelivery": settings.email_delivery_configured,
     }
 
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request) -> HTMLResponse:
     data = projects.load_portfolio()
+    site = data.get("site", {})
     return templates.TemplateResponse(
         request,
         "index.html",
         {
-            "site": data.get("site", {}),
+            "site": site,
             "projects": data.get("projects", []),
             "capabilities": data.get("capabilities", []),
             "experiments": data.get("experiments", []),
             "site_url": settings.site_url,
             "contact_email": settings.contact_email,
             "contact_name": settings.contact_name,
+            "creator_url": site.get("creatorUrl", settings.creator_url),
         },
     )
 
@@ -80,17 +80,19 @@ async def not_found(request: Request, exc) -> HTMLResponse | JSONResponse:
     if request.url.path.startswith("/api/"):
         return JSONResponse(status_code=404, content={"ok": False, "detail": "Not found"})
     data = projects.load_portfolio()
+    site = data.get("site", {})
     return templates.TemplateResponse(
         request,
         "index.html",
         {
-            "site": data.get("site", {}),
+            "site": site,
             "projects": data.get("projects", []),
             "capabilities": data.get("capabilities", []),
             "experiments": data.get("experiments", []),
             "site_url": settings.site_url,
             "contact_email": settings.contact_email,
             "contact_name": settings.contact_name,
+            "creator_url": site.get("creatorUrl", settings.creator_url),
             "error_notice": "The requested path was not found. Returning to ORBIT.",
         },
         status_code=404,

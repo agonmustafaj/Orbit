@@ -36,6 +36,7 @@ def main() -> None:
         site_url=SITE_URL,
         contact_email=site.get("email", "agonmustafaj01@gmail.com"),
         contact_name=site.get("creator", "Agon Mustafaj"),
+        creator_url=site.get("creatorUrl", "https://agonmustafaj.com/"),
         error_notice=None,
     )
 
