@@ -76,8 +76,8 @@
       "id": "threejs",
       "name": "Three.js",
       "category": "CREATIVE DEVELOPMENT",
-      "description": "Real-time WebGL scenes for the ORBIT globe and 3D explorer.",
-      "usedIn": ["Hero globe", "3D Object Explorer"]
+      "description": "Real-time WebGL scenes for the ORBIT particle Earth and 3D explorer.",
+      "usedIn": ["Hero particle Earth", "3D Object Explorer"]
     },
     {
       "id": "webgl",

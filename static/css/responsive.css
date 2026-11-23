@@ -18,6 +18,84 @@
   .orbital-nav { opacity: 0.92; transform: scale(0.92); transform-origin: right bottom; }
 }
 
+/* Phone hero: Earth owns the upper stage; copy sits in a clean lower band. */
+@media (max-width: 720px) {
+  .section--hero.hero--phone,
+  .section--hero {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    align-items: stretch;
+  }
+
+  .section--hero .globe-canvas,
+  .section--hero .globe-fallback {
+    inset: 0 0 28% 0;
+    mask-image: linear-gradient(180deg, #000 0%, #000 72%, transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 72%, transparent 100%);
+  }
+
+  .section--hero .globe-fallback__scene {
+    width: min(78vw, 340px);
+    margin-top: -6vh;
+  }
+
+  .section--hero .hero-grid {
+    align-content: end;
+    min-height: 0;
+    padding-top: 0;
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(5, 3, 8, 0.55) 28%,
+      rgba(5, 3, 8, 0.92) 100%
+    );
+  }
+
+  .section--hero .hero-editorial {
+    max-width: none;
+    order: 2;
+  }
+
+  .section--hero .hero-editorial .meta-list {
+    display: none;
+  }
+
+  .section--hero .hero-lede {
+    max-width: 28rem;
+    font-size: 0.92rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .section--hero .hero-center {
+    display: none;
+  }
+
+  .section--hero .hero-copy {
+    order: 1;
+    margin-bottom: 0.85rem;
+  }
+
+  .section--hero .hero-title {
+    font-size: clamp(2.05rem, 10.5vw, 2.85rem);
+    line-height: 0.98;
+    text-shadow: 0 0 28px rgba(5, 3, 8, 0.85);
+  }
+
+  .section--hero .hero-sub {
+    letter-spacing: 0.12em;
+    font-size: 0.78rem;
+  }
+
+  .section--hero .hero-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .section--hero .hero-bottom__meta span:last-child {
+    color: var(--violet-soft);
+  }
+}
+
 @media (max-width: 720px) {
   :root {
     --header-h: calc(3.75rem + env(safe-area-inset-top, 0px));
@@ -57,7 +135,6 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  .hero-title { font-size: clamp(2rem, 11vw, 3rem); }
   .hero-bottom {
     flex-direction: column;
     align-items: flex-start;

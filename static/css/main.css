@@ -304,6 +304,12 @@ a:hover { color: #fff; }
   touch-action: none;
 }
 
+/* Phone treatment class is toggled by globe.js once quality profile resolves. */
+.section--hero.hero--phone .globe-canvas {
+  /* Prefer vertical scroll; drag still works after movement threshold. */
+  touch-action: pan-y;
+}
+
 .hero-grid {
   position: relative;
   z-index: 1;
