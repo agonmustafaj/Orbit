@@ -9,11 +9,6 @@
   .hero-editorial { max-width: 20rem; }
   .hero-copy { text-align: left; }
   .hero-title, .hero-sub { text-align: left; }
-  .project-card,
-  .project-card:nth-child(even) {
-    grid-template-columns: 1fr;
-  }
-  .project-card:nth-child(even) .project-card__media { order: 0; }
   .experiment-grid,
   .principle-grid,
   .constellation-wrap,
@@ -94,7 +89,6 @@
     height: min(55dvh, 420px);
   }
 
-  .project-dialog,
   .experiment-dialog {
     width: calc(100vw - 1rem);
     max-height: calc(100dvh - 1rem - env(safe-area-inset-bottom, 0px));

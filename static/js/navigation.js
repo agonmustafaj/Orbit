@@ -1,4 +1,4 @@
-const SECTIONS = ["index", "work", "playground", "about", "capabilities", "contact"];
+const SECTIONS = ["index", "playground", "about", "capabilities", "contact"];
 
 export function initNavigation({ onSectionChange } = {}) {
   const buttons = [...document.querySelectorAll("[data-nav]")];

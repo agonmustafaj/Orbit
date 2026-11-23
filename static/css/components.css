@@ -146,59 +146,6 @@
   font-size: 0.92rem;
 }
 
-/* Work */
-.project-rail {
-  display: grid;
-  gap: clamp(2rem, 6vw, 4.5rem);
-}
-.project-card {
-  display: grid;
-  grid-template-columns: 1.35fr 1fr;
-  gap: clamp(1rem, 3vw, 2.5rem);
-  align-items: center;
-  border-top: 1px solid var(--line);
-  padding-top: clamp(1.5rem, 4vw, 2.5rem);
-}
-.project-card:nth-child(even) .project-card__media { order: 2; }
-.project-card__media {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  background: #0a0610;
-}
-.project-card__media img {
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
-  transition: transform 0.7s var(--ease);
-}
-.project-card:hover .project-card__media img,
-.project-card:focus-within .project-card__media img {
-  transform: scale(1.04);
-}
-.project-card__number {
-  position: absolute;
-  left: 0.85rem;
-  top: 0.85rem;
-  font-size: 0.75rem;
-  color: var(--violet-soft);
-  background: rgba(5, 3, 8, 0.7);
-  padding: 0.25rem 0.45rem;
-  transition: color 0.25s var(--ease);
-}
-.project-card:hover .project-card__number { color: #fff; }
-.project-card__cat {
-  margin: 0 0 0.5rem;
-  font-size: 0.68rem;
-  color: var(--ink-muted);
-}
-.project-card h3 {
-  margin: 0 0 0.65rem;
-  font-size: clamp(1.5rem, 3vw, 2.2rem);
-  letter-spacing: -0.03em;
-}
-.project-card__body p { color: var(--ink-muted); }
-
 /* Playground */
 .experiment-grid {
   display: grid;
@@ -425,7 +372,6 @@
 .orbital-nav__btn:hover { color: var(--violet-soft); }
 
 /* Dialogs */
-.project-dialog,
 .experiment-dialog {
   border: 1px solid var(--line);
   background: #09060f;
@@ -434,36 +380,8 @@
   width: min(920px, calc(100vw - 2rem));
   max-height: calc(100vh - 2rem);
 }
-.project-dialog::backdrop,
 .experiment-dialog::backdrop {
   background: rgba(0, 0, 0, 0.72);
-}
-.project-dialog__inner { padding: 1.5rem; position: relative; }
-.project-dialog__close { position: absolute; right: 1rem; top: 1rem; }
-.project-dialog img {
-  width: 100%;
-  border: 1px solid var(--line);
-  margin: 1rem 0;
-}
-.project-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  margin: 0.75rem 0 1rem;
-  font-size: 0.72rem;
-  color: var(--ink-muted);
-}
-.tech-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  list-style: none;
-  padding: 0;
-}
-.tech-list li {
-  border: 1px solid var(--line);
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
 }
 .experiment-dialog__bar {
   display: flex;

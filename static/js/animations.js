@@ -45,16 +45,6 @@ export function initAnimations() {
     });
   });
 
-  gsap.utils.toArray(".project-card").forEach((card) => {
-    gsap.from(card, {
-      scrollTrigger: { trigger: card, start: "top 85%" },
-      y: 36,
-      opacity: 0,
-      duration: 0.85,
-      ease: "power2.out",
-    });
-  });
-
   gsap.from(".contact-title span", {
     scrollTrigger: { trigger: "#contact", start: "top 70%" },
     y: 50,
