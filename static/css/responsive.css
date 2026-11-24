@@ -18,53 +18,72 @@
   .orbital-nav { opacity: 0.92; transform: scale(0.92); transform-origin: right bottom; }
 }
 
-/* Phone hero: Earth owns the upper stage; copy sits in a clean lower band. */
+/* Phone hero: readable particle Earth as the visual anchor; calm lower copy. */
 @media (max-width: 720px) {
-  .section--hero.hero--phone,
-  .section--hero {
-    display: grid;
-    grid-template-rows: 1fr auto;
-    align-items: stretch;
-  }
-
-  .section--hero .globe-canvas,
-  .section--hero .globe-fallback {
-    inset: 0 0 28% 0;
-    mask-image: linear-gradient(180deg, #000 0%, #000 72%, transparent 100%);
-    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 72%, transparent 100%);
-  }
-
-  .section--hero .globe-fallback__scene {
-    width: min(78vw, 340px);
-    margin-top: -6vh;
-  }
-
-  .section--hero .hero-grid {
-    align-content: end;
-    min-height: 0;
-    padding-top: 0;
-    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
-    background: linear-gradient(
-      180deg,
-      transparent 0%,
-      rgba(5, 3, 8, 0.55) 28%,
-      rgba(5, 3, 8, 0.92) 100%
-    );
-  }
-
-  .section--hero .hero-editorial {
-    max-width: none;
-    order: 2;
-  }
-
-  .section--hero .hero-editorial .meta-list {
+  /* CONTACT lives in the hamburger drawer — keep chrome to brand + 2 icons. */
+  .site-chrome .chrome-link {
     display: none;
   }
 
-  .section--hero .hero-lede {
-    max-width: 28rem;
-    font-size: 0.92rem;
-    margin-bottom: 0.75rem;
+  .chrome-right {
+    gap: 0.45rem;
+  }
+
+  .section--hero.hero--phone,
+  .section--hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  /*
+   * Upper stage = particle Earth only. Canvas is cropped (not full-bleed) so
+   * globe.js can frame a full disc in a near-square box; copy sits in a calm
+   * lower band with no speckled void under the type.
+   */
+  .section--hero .globe-canvas,
+  .section--hero .globe-fallback {
+    /* Canvas is a replaced element — use explicit % height, not top+bottom inset. */
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    width: 100%;
+    height: 60%;
+    mask-image: linear-gradient(180deg, #000 0%, #000 84%, transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 84%, transparent 100%);
+  }
+
+  .section--hero .globe-fallback__scene {
+    width: min(78vw, 320px);
+    margin-top: 0;
+  }
+
+  .section--hero .hero-grid {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: stretch;
+    gap: 0;
+    min-height: 100%;
+    padding:
+      calc(var(--header-h) + 0.25rem)
+      max(1.15rem, env(safe-area-inset-left, 0px))
+      calc(3.5rem + env(safe-area-inset-bottom, 0px))
+      max(1.15rem, env(safe-area-inset-right, 0px));
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      transparent 54%,
+      rgba(5, 3, 8, 0.55) 64%,
+      rgba(5, 3, 8, 0.94) 78%,
+      #050308 100%
+    );
+  }
+
+  /* Drop SYS / meta noise on phone — one headline + one support line. */
+  .section--hero .hero-editorial {
+    display: none;
   }
 
   .section--hero .hero-center {
@@ -72,27 +91,35 @@
   }
 
   .section--hero .hero-copy {
-    order: 1;
-    margin-bottom: 0.85rem;
+    margin: 0 auto;
+    max-width: 18rem;
+    text-align: center;
   }
 
   .section--hero .hero-title {
-    font-size: clamp(2.05rem, 10.5vw, 2.85rem);
-    line-height: 0.98;
-    text-shadow: 0 0 28px rgba(5, 3, 8, 0.85);
+    font-size: clamp(1.4rem, 6.2vw, 1.85rem);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    text-align: center;
+    text-shadow:
+      0 0 18px rgba(5, 3, 8, 0.95),
+      0 1px 0 rgba(5, 3, 8, 0.8);
   }
 
   .section--hero .hero-sub {
-    letter-spacing: 0.12em;
-    font-size: 0.78rem;
+    margin-top: 0.5rem;
+    letter-spacing: 0.14em;
+    font-size: 0.66rem;
+    text-align: center;
+    text-shadow: 0 0 14px rgba(5, 3, 8, 0.95);
   }
 
   .section--hero .hero-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
-  .section--hero .hero-bottom__meta span:last-child {
-    color: var(--violet-soft);
+  .section--hero .hero-bottom__meta {
+    display: none;
   }
 }
 

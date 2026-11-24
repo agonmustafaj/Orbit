@@ -49,34 +49,37 @@ function qualityProfile() {
   const coarse = window.matchMedia("(pointer: coarse)").matches;
   const saveData = Boolean(navigator.connection?.saveData);
   const phone = w < 720 || coarse;
-  // Phone: fewer, brighter particles + closer framing (not a muddy desktop downsample).
+  // Phone canvas ≈ 390×540 portrait. Disc diameter must fit horizontal FOV.
   if (saveData || (phone && w < 400)) {
     return {
       id: "low",
       phone: true,
       dpr: 1,
       antialias: false,
-      landStep: 5,
-      coastStep: 3,
-      atmoCount: 120,
-      starCount: 48,
-      ringSeg: 72,
-      rings: 1,
-      spikes: 8,
-      nodes: 10,
+      landStep: 3,
+      coastStep: 2,
+      atmoCount: 28,
+      starCount: 16,
+      ringSeg: 56,
+      rings: 0,
+      spikes: 0,
+      nodes: 4,
       softPoints: false,
-      glowShell: false,
+      glowShell: true,
       coreLayer: false,
       coastLines: false,
-      landSize: 0.032,
-      coastSize: 0.028,
-      atmoSize: 0.05,
-      earthScale: 1.28,
-      earthY: 0.42,
-      camZ: 4.15,
-      camY: 0.05,
-      fogDensity: 0.028,
-      spin: 0.1,
+      landSize: 0.036,
+      coastSize: 0.03,
+      atmoSize: 0.022,
+      earthScale: 0.92,
+      earthY: 0.02,
+      camZ: 5.9,
+      camY: 0.02,
+      fogDensity: 0.034,
+      spin: 0.065,
+      ringOpacity: 0.22,
+      ringGlow: 0.06,
+      fov: 42,
     };
   }
   if (phone) {
@@ -85,27 +88,30 @@ function qualityProfile() {
       phone: true,
       dpr: 1.15,
       antialias: false,
-      landStep: 4,
+      landStep: 3,
       coastStep: 2,
-      atmoCount: 220,
-      starCount: 90,
-      ringSeg: 96,
-      rings: 1,
-      spikes: 12,
-      nodes: 14,
+      atmoCount: 40,
+      starCount: 20,
+      ringSeg: 64,
+      rings: 0,
+      spikes: 0,
+      nodes: 5,
       softPoints: false,
       glowShell: true,
       coreLayer: false,
       coastLines: false,
-      landSize: 0.028,
-      coastSize: 0.024,
-      atmoSize: 0.045,
-      earthScale: 1.22,
-      earthY: 0.38,
-      camZ: 4.35,
-      camY: 0.08,
-      fogDensity: 0.032,
-      spin: 0.09,
+      landSize: 0.034,
+      coastSize: 0.028,
+      atmoSize: 0.022,
+      earthScale: 0.94,
+      earthY: 0.02,
+      camZ: 5.75,
+      camY: 0.02,
+      fogDensity: 0.036,
+      spin: 0.065,
+      ringOpacity: 0.24,
+      ringGlow: 0.07,
+      fov: 42,
     };
   }
   return {
@@ -134,11 +140,20 @@ function qualityProfile() {
     camY: 0.12,
     fogDensity: 0.045,
     spin: 0.08,
+    ringOpacity: 0.75,
+    ringGlow: null,
+    fov: 42,
   };
 }
 
 function readSize(canvas) {
   const parent = canvas?.parentElement || document.body;
+  // Prefer the canvas CSS box so phone crops / full-bleed match the WebGL buffer.
+  const cw = Math.floor(canvas?.clientWidth || 0);
+  const ch = Math.floor(canvas?.clientHeight || 0);
+  if (cw > 1 && ch > 1) {
+    return { w: cw, h: ch, parent };
+  }
   const rect = parent.getBoundingClientRect?.() || { width: 0, height: 0 };
   const w = Math.max(
     1,
@@ -417,7 +432,7 @@ function buildFromMask(mask, q) {
     const [lat, lon, weight] = nodeList[i];
     const p = latLonToVec3(lat, lon, RADIUS * 1.01);
     const n = p.clone().normalize();
-    const s = (q.phone ? 0.024 : 0.018) + weight * (q.phone ? 0.016 : 0.012);
+    const s = (q.phone ? 0.016 : 0.018) + weight * (q.phone ? 0.01 : 0.012);
     const dot = new THREE.Mesh(new THREE.SphereGeometry(s, 10, 10), nodeMat);
     dot.position.copy(p);
     nodeGroup.add(dot);
@@ -433,7 +448,7 @@ function buildFromMask(mask, q) {
     disposables.push(halo.geometry);
 
     if (i < q.spikes) {
-      const len = (q.phone ? 0.38 : 0.28) + weight * (q.phone ? 0.7 : 0.55) + (i % 3) * 0.08;
+      const len = (q.phone ? 0.22 : 0.28) + weight * (q.phone ? 0.4 : 0.55) + (i % 3) * (q.phone ? 0.04 : 0.08);
       const outer = n.clone().multiplyScalar(RADIUS + len);
       spikePos.push(p.x, p.y, p.z, outer.x, outer.y, outer.z);
       // Tiny tip glow.
@@ -485,7 +500,7 @@ function buildFromMask(mask, q) {
         dof: 0.85,
         focus: 5.4,
       })
-    : makeBasicPoints(0x7c3aed, q.atmoSize, q.phone ? 0.4 : 0.28);
+    : makeBasicPoints(0x7c3aed, q.atmoSize, q.phone ? 0.22 : 0.28);
   const atmosphere = new THREE.Points(atmoGeo, atmoMat);
   group.add(atmosphere);
   disposables.push(atmoGeo, atmoMat);
@@ -496,7 +511,7 @@ function buildFromMask(mask, q) {
       new THREE.MeshBasicMaterial({
         color: 0x4c1d95,
         transparent: true,
-        opacity: 0.08,
+        opacity: q.phone ? 0.18 : 0.08,
         side: THREE.BackSide,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
@@ -510,7 +525,7 @@ function buildFromMask(mask, q) {
       new THREE.MeshBasicMaterial({
         color: 0x6366f1,
         transparent: true,
-        opacity: 0.06,
+        opacity: q.phone ? 0.14 : 0.06,
         side: THREE.BackSide,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
@@ -529,11 +544,17 @@ function buildFromMask(mask, q) {
 function buildRings(q) {
   const group = new THREE.Group();
   const disposables = [];
-  const configs = [
-    { r: 2.15, tube: 0.012, rx: 78, rz: -18, color: 0xc4b5fd, glow: 0.3 },
-    { r: 2.42, tube: 0.008, rx: 62, rz: 28, color: 0xa855f7, glow: 0.22 },
-    { r: 2.7, tube: 0.006, rx: 88, rz: -42, color: 0x818cf8, glow: 0.18 },
-  ].slice(0, q.rings);
+  // Phone: one soft equatorial ring that frames the disc without cutting the copy.
+  const configs = (
+    q.phone
+      ? [{ r: 1.95, tube: 0.007, rx: 82, rz: -8, color: 0xc4b5fd, glow: q.ringGlow ?? 0.1 }]
+      : [
+          { r: 2.15, tube: 0.012, rx: 78, rz: -18, color: 0xc4b5fd, glow: 0.3 },
+          { r: 2.42, tube: 0.008, rx: 62, rz: 28, color: 0xa855f7, glow: 0.22 },
+          { r: 2.7, tube: 0.006, rx: 88, rz: -42, color: 0x818cf8, glow: 0.18 },
+        ]
+  ).slice(0, q.rings);
+  const ringOpacity = q.ringOpacity ?? 0.75;
 
   configs.forEach((cfg, i) => {
     const g = new THREE.Group();
@@ -544,7 +565,7 @@ function buildRings(q) {
       new THREE.MeshBasicMaterial({
         color: cfg.color,
         transparent: true,
-        opacity: 0.75,
+        opacity: ringOpacity,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
       })
@@ -643,7 +664,7 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
   // Soft vignette-like fog for shallow DOF / depth falloff against black space.
   scene.fog = new THREE.FogExp2(0x050308, q.fogDensity);
 
-  const camera = new THREE.PerspectiveCamera(q.phone ? 38 : 42, 1, 0.1, 100);
+  const camera = new THREE.PerspectiveCamera(q.fov ?? (q.phone ? 35 : 42), 1, 0.1, 100);
   camera.position.set(0, q.camY, q.camZ);
 
   const root = new THREE.Group();
@@ -876,7 +897,7 @@ export function createGlobe(canvas, { onReady, onFallback } = {}) {
         q.camY + pointer.y * (camParallax * 0.5) + scrollT * (q.phone ? 0.2 : 0.35);
       camera.position.z =
         q.camZ - scrollT * (q.phone ? 0.55 : 1.05) - Math.abs(pointer.x) * (q.phone ? 0.03 : 0.06);
-      const lookY = q.phone ? q.earthY * 0.55 : 0;
+      const lookY = q.phone ? q.earthY : 0;
       camera.lookAt(pointer.x * 0.12, lookY + pointer.y * 0.06, 0);
 
       root.position.x = pointer.x * rootParallax;
